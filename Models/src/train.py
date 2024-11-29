@@ -1,4 +1,4 @@
-from CLARITY_dataloader import LolDatasetLoader
+from Models.src.CLARITY_dataloader import LolDatasetLoader
 from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
