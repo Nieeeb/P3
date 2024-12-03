@@ -1,5 +1,5 @@
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -12,17 +12,26 @@ sys.path.append(str(data_path))
 
 from APPLY_FLARE_TO_IMG import Flare_Image_Loader
 
-class LolDatasetLoader():
-    def __init__(self, flare=bool, light_source_on_target=bool):
-        self.light_source_on_target = light_source_on_target
+class LolDatasetLoader(Dataset):
+    def __init__(self, flare: bool):
         self.flare = flare
-        self.root = r"C:\Users\Victor Steinrud\Downloads\lol_dataset\our485"
-        self.inputs_dir = os.path.join(self.root, r'low')
-        self.targets_dir = os.path.join(self.root, r'high')
+        self.root = r"Data/" #Data/LOLdataset/our485"
+        self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"] #os.path.join(self.root, r'low')
+        self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"] #os.path.join(self.root, r'high')
         self.transform = transforms.ToTensor()
 
-        self.inputs = sorted(os.listdir(self.inputs_dir))
-        self.targets = sorted(os.listdir(self.targets_dir))
+        included_extenstions = ['png']
+        
+        self.inputs = []
+        for input_dir in self.inputs_dirs:
+            input_images = [os.path.join(input_dir, file) for file in os.listdir(input_dir) if any(file.endswith(ext) for ext in included_extenstions)]
+            self.inputs.extend(input_images)
+
+        self.targets = []
+        for target_dir in self.targets_dirs:
+            target_images = [os.path.join(target_dir, file) for file in os.listdir(target_dir) if any(file.endswith(ext) for ext in included_extenstions)]
+            self.targets.extend(target_images)
+        print(self.targets)
 
 
 
@@ -31,42 +40,30 @@ class LolDatasetLoader():
     
     def __getitem__(self, idx):
 
-        input_path = os.path.join(self.inputs_dir, self.inputs[idx])
-        target_path = os.path.join(self.targets_dir, self.targets[idx])
+        scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
+
+        input_path = self.inputs[idx]
+        target_path = self.targets[idx]
         input_image = Image.open(input_path)
         target_image = Image.open(target_path)
 
-        if self.flare and self.light_source_on_target:
-            input_flare_image_loader=Flare_Image_Loader(input_image,transform_base=None,transform_flare=None)
-            input_flare_image_loader.load_scattering_flare('Flare7K',r"C:\Users\Victor Steinrud\Downloads\Scattering_Flare\Light_Source")
-            input_flare_image_loader.load_reflective_flare('Flare7K',r"C:\Users\Victor Steinrud\Downloads\Reflective_Flare")
-            _,_,input_image,_, flare=input_flare_image_loader.apply_flare()
-
-            target_flare_image_loader=Flare_Image_Loader(target_image,transform_base=None,transform_flare=None)
-            target_flare_image_loader.load_scattering_flare('Flare7K',r"C:\Users\Victor Steinrud\Downloads\Scattering_Flare\Light_Source")
-            _,_,target_image,_=target_flare_image_loader.apply_flare_with_flare(flare)
-            input_image = input_image.transpose(1, 2)
-            target_image = target_image.transpose(1, 2)
-
-
-        if self.flare and not self.light_source_on_target:
+        if self.flare: 
             flare_image_loader=Flare_Image_Loader(input_image,transform_base=None,transform_flare=None)
-            flare_image_loader.load_scattering_flare('Flare7K',r"C:\Users\Victor Steinrud\Downloads\Scattering_Flare\Light_Source")
-            flare_image_loader.load_reflective_flare('Flare7K',r"C:\Users\Victor Steinrud\Downloads\Reflective_Flare")
+            flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
             _,_,input_image,_,flare=flare_image_loader.apply_flare()
 
             target_image = self.transform(target_image) 
             input_image = input_image.transpose(1, 2)
 
-        if not self.flare and not self.light_source_on_target:
+        else:
             input_image = self.transform(input_image)
             target_image = self.transform(target_image)
 
         return input_image, target_image
     
 if __name__ == "__main__":
-    l = LolDatasetLoader(flare=True, light_source_on_target=False)
-    train_loader = DataLoader(l)
+    l = LolDatasetLoader(flare=True)
+    train_loader = DataLoader(l, batch_size=1)
     for input, target in train_loader:
         input = input.squeeze(0)
         target = target.squeeze(0)

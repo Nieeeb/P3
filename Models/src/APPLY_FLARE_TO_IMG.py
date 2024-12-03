@@ -38,10 +38,13 @@ def plot_light_pos(input_img,threshold):
 	img_ed = ndimage.binary_dilation(img_e, structure = struc)
 
 	labels = label(img_ed)
+
 	if labels.max() == 0:
 		# print("Light source not found.")
-		x = random.randint(0, 255)
-		y = random.randint(0, 255)
+		x = random.randint(-(input_img.shape[2] // 2), input_img.shape[2] // 2)
+		print(x)
+		y = random.randint(-(input_img.shape[0] // 2), input_img.shape[0] // 2)
+		print(y)
 
 		return (x, y)
 	else:
@@ -116,15 +119,15 @@ class Flare_Image_Loader(data.Dataset):
 		to_tensor=transforms.ToTensor() #ToTensor funktionen bliver føjet til variabel
 		adjust_gamma=RandomGammaCorrection(gamma) # Den bruger gamme hvilket var et tal mellem de to tal i uniform og bruger i gammacorrection
 
-		adjust_gamma_reverse=RandomGammaCorrection(1/gamma) #Definerer gamma reverse halløj. 1/gamma bcuz math
+		adjust_gamma_reverse=RandomGammaCorrection(0) #Definerer gamma reverse halløj. 1/gamma bcuz math
 		color_jitter=transforms.ColorJitter(brightness=(0.8,3),hue=0.0)  #Den her tilføje random jitter
 		if self.transform_base is not None: # Hvis der er en base transform der er tilføjer til Flare_Image_loader bliver den brug
 			self.base_image=to_tensor(self.base_image)
-			self.base_image=adjust_gamma(self.base_image)
+			#([TEST])self.base_image=adjust_gamma(self.base_image)
 			self.base_image=self.transform_base(self.base_image)
 		else: # Ellers bliver base bare .permute(2,0,1) hvilket shuffler dimensionerne af tensoren
 			self.base_image=to_tensor(self.base_image)
-			self.base_image=adjust_gamma(self.base_image)
+			#([TEST])self.base_image=adjust_gamma(self.base_image)
 			self.base_image=self.base_image.permute(2,0,1)
 		sigma_chi=0.01*np.random.chisquare(df=1) #Den giver mig et tal fra chi squared distribution
 		self.base_image=Normal(self.base_image,sigma_chi).sample() #Tilføjer basically bare støj men på en super klog math måde
@@ -137,9 +140,7 @@ class Flare_Image_Loader(data.Dataset):
 				#traslate=TranslationTransform(light_pos)
 		transform_flare=transforms.Compose([transforms.RandomHorizontalFlip(), #Det her vender billedet højre til venstre med 50% chance
 							  transforms.RandomVerticalFlip(), # Vender det op eller ned med samme sandsynlighed
-                              transforms.RandomAffine(degrees=(0,360),scale=(0.4,0.8),translate=(0,0),shear=(-20,20)),  # roteret det med en random grad mellem 0 og 360. skalerer flare med et random tal mellem 0.8 og 1.5. og applier et shear
-							  TranslationTransform(light_pos)
-                            #  ([DEN HER ER FJERNET FORDI DET SKABTE EN WIERD GRÅ FIRKANT AT CROPPE DET 2 GANGE]) --> transforms.CenterCrop((512,512)),
+                              transforms.RandomAffine(degrees=(0,360),scale=(0.4,0.8),translate=(0,0),shear=(-20,20)) # roteret det med en random grad mellem 0 og 360. skalerer flare med et random tal mellem 0.8 og 1.5. og applier et shear
                               ])
 
 		#load flare image
@@ -150,11 +151,11 @@ class Flare_Image_Loader(data.Dataset):
 			reflective_img =Image.open(reflective_path)
 
 		flare_img=to_tensor(flare_img)
-		flare_img=adjust_gamma(flare_img)
+		#([TEST])flare_img=adjust_gamma(flare_img)
 		
 		if self.reflective_flag:
 			reflective_img=to_tensor(reflective_img)
-			reflective_img=adjust_gamma(reflective_img) #Den adjuster ligeledes gamma på reflective
+			#([TEST])reflective_img=adjust_gamma(reflective_img) #Den adjuster ligeledes gamma på reflective
 			flare_img = torch.clamp(flare_img+reflective_img,min=0,max=1) # Den ligge scatter flare og reflective flare i et billede
 
 		flare_img=remove_background(flare_img) # Den forstørrer basically kontrasten så der er større forskel mellem flare og baggrunden
@@ -162,7 +163,8 @@ class Flare_Image_Loader(data.Dataset):
 		if self.transform_flare is not None:
 			flare_img=self.transform_flare(flare_img)
 		else: # Den bruger her den transorm der vender og drejer flare billedet
-			flare_img=transform_flare(flare_img)
+			#flare_img=transform_flare(flare_img)
+			pass
 		
 		#change color
 		flare_img=color_jitter(flare_img) # Så tilføjet den random farve spikes
@@ -174,9 +176,6 @@ class Flare_Image_Loader(data.Dataset):
 		flare_img=torch.clamp(flare_img,min=0,max=1)
 
 		#merge image	
-		print(flare_img.shape)
-		print(self.base_image.shape)
-
 		if self.base_image.dim() == 3 and self.base_image.shape[0] != 3: #Det her sørger for at channel dim er det rigtige sted
 			self.base_image = self.base_image.permute(1, 0, 2)
 
@@ -192,10 +191,9 @@ class Flare_Image_Loader(data.Dataset):
 				translate=(0, 0),
 				shear=(-20, 20),
 			),
-			TranslationTransform(light_pos),
-			transforms.CenterCrop((base_height, base_width)),
+			transforms.Resize((base_height, base_width)),
+			TranslationTransform(light_pos)
 		])
-
 		# Apply transformations to flare image
 		flare_img = transform_flare(flare_img)
 
@@ -216,7 +214,6 @@ class Flare_Image_Loader(data.Dataset):
 			#calculate mask (the mask is 3 channel)
 			one = torch.ones_like(self.base_image)
 			zero = torch.zeros_like(self.base_image)
-
 			luminance=0.3*flare_img[0]+0.59*flare_img[1]+0.11*flare_img[2]
 			threshold_value=0.99**gamma
 			flare_mask=torch.where(luminance >threshold_value, one, zero)
@@ -224,129 +221,10 @@ class Flare_Image_Loader(data.Dataset):
 		elif self.mask_type=="color":
 			one = torch.ones_like(self.base_image)
 			zero = torch.zeros_like(self.base_image)
-
 			threshold_value=0.99**gamma
 			flare_mask=torch.where(merge_img >threshold_value, one, zero)
 		return adjust_gamma_reverse(self.base_image),adjust_gamma_reverse(flare_img),adjust_gamma_reverse(merge_img),flare_mask,gamma, flare
 	
-
-
-
-
-
-
-
-	def apply_flare_with_flare(self, flare):
-		gamma=np.random.uniform(1.8,2.2)
-		to_tensor=transforms.ToTensor()
-		adjust_gamma=RandomGammaCorrection(gamma)
-		adjust_gamma_reverse=RandomGammaCorrection(1/gamma)
-		color_jitter=transforms.ColorJitter(brightness=(0.8,3),hue=0.0)
-		if self.transform_base is not None:
-			self.base_image=to_tensor(self.base_image)
-			self.base_image=adjust_gamma(self.base_image)
-			self.base_image=self.transform_base(self.base_image)
-		else:
-			self.base_image=to_tensor(self.base_image)
-			self.base_image=adjust_gamma(self.base_image)
-			self.base_image=self.base_image.permute(2,0,1)
-		sigma_chi=0.01*np.random.chisquare(df=1)
-		self.base_image=Normal(self.base_image,sigma_chi).sample()
-		gain=np.random.uniform(1,1.2)
-		flare_DC_offset=np.random.uniform(-0.02,0.02)
-		self.base_image=gain*self.base_image
-		self.base_image=torch.clamp(self.base_image,min=0,max=1)
-
-		light_pos=plot_light_pos(self.base_image,0.97**gamma)
-		
-		light_pos=[light_pos[0]-256,light_pos[1]-256]
-		#traslate=TranslationTransform(light_pos)
-		transform_flare=transforms.Compose([transforms.RandomHorizontalFlip(),
-							  transforms.RandomVerticalFlip(),
-                              transforms.RandomAffine(degrees=(0,360),scale=(0.8,1.5),translate=(0,0),shear=(-20,20)),
-							  TranslationTransform(light_pos),
-                              transforms.CenterCrop((512,512)),
-                              ])
-
-		#load flare image
-		flare_img = flare
-		if self.reflective_flag:
-			reflective_path=random.choice(self.reflective_list)
-			reflective_img =Image.open(reflective_path)
-
-		flare_img=to_tensor(flare_img)
-		flare_img=adjust_gamma(flare_img)
-		
-		if self.reflective_flag:
-			reflective_img=to_tensor(reflective_img)
-			reflective_img=adjust_gamma(reflective_img)
-			flare_img = torch.clamp(flare_img+reflective_img,min=0,max=1)
-
-		flare_img=remove_background(flare_img)
-
-		if self.transform_flare is not None:
-			flare_img=self.transform_flare(flare_img)
-		else:
-			flare_img=transform_flare(flare_img)
-		
-		#change color
-		flare_img=color_jitter(flare_img)
-
-		#flare blur
-		blur_transform=transforms.GaussianBlur(21,sigma=(0.1,3.0))
-		flare_img=blur_transform(flare_img)
-		flare_img=flare_img+flare_DC_offset
-		flare_img=torch.clamp(flare_img,min=0,max=1)
-
-		#merge image	
-		if self.base_image.dim() == 3 and self.base_image.shape[0] != 3:
-			self.base_image = self.base_image.permute(1, 0, 2)
-		base_height, base_width = self.base_image.shape[1], self.base_image.shape[2]
-
-		# Update flare transformations to match base image size
-		transform_flare = transforms.Compose([
-			transforms.RandomHorizontalFlip(),
-			transforms.RandomVerticalFlip(),
-			transforms.RandomAffine(
-				degrees=(0, 360),
-				scale=(0.8, 1.5),
-				translate=(0, 0),
-				shear=(-20, 20),
-			),
-			TranslationTransform(light_pos),
-			transforms.CenterCrop((base_height, base_width)),
-		])
-
-		# Apply transformations to flare image
-		flare_img = transform_flare(flare_img)
-
-		# Ensure flare_img and self.base_image have the same size
-		if flare_img.shape[1:] != self.base_image.shape[1:]:
-			# Resize flare_img to match base_image
-			resize_transform = transforms.Resize((base_height, base_width))
-			flare_img = resize_transform(flare_img)
-
-		merge_img=flare_img+self.base_image
-		merge_img=torch.clamp(merge_img,min=0,max=1)
-
-		if self.mask_type==None:
-			return adjust_gamma_reverse(self.base_image),adjust_gamma_reverse(flare_img),adjust_gamma_reverse(merge_img),gamma
-		elif self.mask_type=="luminance":
-			#calculate mask (the mask is 3 channel)
-			one = torch.ones_like(self.base_image)
-			zero = torch.zeros_like(self.base_image)
-
-			luminance=0.3*flare_img[0]+0.59*flare_img[1]+0.11*flare_img[2]
-			threshold_value=0.99**gamma
-			flare_mask=torch.where(luminance >threshold_value, one, zero)
-
-		elif self.mask_type=="color":
-			one = torch.ones_like(self.base_image)
-			zero = torch.zeros_like(self.base_image)
-
-			threshold_value=0.99**gamma
-			flare_mask=torch.where(merge_img >threshold_value, one, zero)
-		return adjust_gamma_reverse(self.base_image),adjust_gamma_reverse(flare_img),adjust_gamma_reverse(merge_img),flare_mask,gamma
 			
 	def load_scattering_flare(self,flare_name,flare_path):
 		flare_list=[]
