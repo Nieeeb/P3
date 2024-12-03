@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from PIL import Image
 import os
-from CLARITY_model_zoo.simplecnn import ImageToImageCNN 
+from model_zoo import ImageToImageCNN 
 
 dataset = LolDatasetLoader(flare=False, light_source_on_target=False)
 train_loader = DataLoader(dataset=dataset)
