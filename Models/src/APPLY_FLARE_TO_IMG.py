@@ -42,9 +42,7 @@ def plot_light_pos(input_img,threshold):
 	if labels.max() == 0:
 		# print("Light source not found.")
 		x = random.randint(-(input_img.shape[2] // 2), input_img.shape[2] // 2)
-		print(x)
 		y = random.randint(-(input_img.shape[0] // 2), input_img.shape[0] // 2)
-		print(y)
 
 		return (x, y)
 	else:
@@ -93,8 +91,8 @@ def remove_background(image):
 	return image
 
 class Flare_Image_Loader(data.Dataset):
-	def __init__(self, base_image ,transform_base=None,transform_flare=None,mask_type=None):
-		self.base_image = base_image #base image er billedet som flare skal tilføjes på
+	def __init__(self,transform_base=None,transform_flare=None,mask_type=None):
+		#self.base_image = base_image #base image er billedet som flare skal tilføjes på
 
 		self.ext = ['png','jpeg','jpg','bmp','tif'] #Den vil kun tilføje en flare til et billede med de her fil typer
 		self.flare_dict={} # Den føjer et dictionary der holder flares
@@ -114,10 +112,11 @@ class Flare_Image_Loader(data.Dataset):
 
 		# print("Base Image Loaded with examples:", len(self.data_list))
 
-	def apply_flare(self):
+	def apply_flare(self, base_image):
+		self.base_image = base_image
 		gamma=np.random.uniform(1.8,2.2) # Den vælger en random værdi mellem de to tal og der er lige sandsynlighed for alle tal imellem dem
 		to_tensor=transforms.ToTensor() #ToTensor funktionen bliver føjet til variabel
-		adjust_gamma=RandomGammaCorrection(gamma) # Den bruger gamme hvilket var et tal mellem de to tal i uniform og bruger i gammacorrection
+		#adjust_gamma=RandomGammaCorrection(gamma) # Den bruger gamme hvilket var et tal mellem de to tal i uniform og bruger i gammacorrection
 
 		adjust_gamma_reverse=RandomGammaCorrection(0) #Definerer gamma reverse halløj. 1/gamma bcuz math
 		color_jitter=transforms.ColorJitter(brightness=(0.8,3),hue=0.0)  #Den her tilføje random jitter
@@ -137,11 +136,6 @@ class Flare_Image_Loader(data.Dataset):
 		self.base_image=torch.clamp(self.base_image,min=0,max=1) #sørger for at alle pixel værdier er mellem 0 og 1
 
 		light_pos=plot_light_pos(self.base_image,0.97**gamma) #Den returnerer en position og hvis der er en lyskilde på billedet vil den finde den. ellers vil den returnere en random position
-				#traslate=TranslationTransform(light_pos)
-		transform_flare=transforms.Compose([transforms.RandomHorizontalFlip(), #Det her vender billedet højre til venstre med 50% chance
-							  transforms.RandomVerticalFlip(), # Vender det op eller ned med samme sandsynlighed
-                              transforms.RandomAffine(degrees=(0,360),scale=(0.4,0.8),translate=(0,0),shear=(-20,20)) # roteret det med en random grad mellem 0 og 360. skalerer flare med et random tal mellem 0.8 og 1.5. og applier et shear
-                              ])
 
 		#load flare image
 		flare_path=random.choice(self.flare_list) #Den vælger en random flare
@@ -162,9 +156,6 @@ class Flare_Image_Loader(data.Dataset):
 
 		if self.transform_flare is not None:
 			flare_img=self.transform_flare(flare_img)
-		else: # Den bruger her den transorm der vender og drejer flare billedet
-			#flare_img=transform_flare(flare_img)
-			pass
 		
 		#change color
 		flare_img=color_jitter(flare_img) # Så tilføjet den random farve spikes
@@ -235,9 +226,8 @@ class Flare_Image_Loader(data.Dataset):
 		len_flare_list=len(self.flare_dict[flare_name])
 		if len_flare_list == 0:
 			print("ERROR: scattering flare images are not loaded properly")
-		else:
-			print("Scattering Flare Image:",flare_name, " is loaded successfully with examples", str(len_flare_list))
-		print("Now we have",len(self.flare_list),'scattering flare images')
+		
+		print("Scattering Flare Image:",flare_name," is loaded successfully with ", str(len_flare_list)," flares")
 
 	def load_reflective_flare(self,reflective_name,reflective_path):
 		self.reflective_list=[]
@@ -250,9 +240,8 @@ class Flare_Image_Loader(data.Dataset):
 		len_reflective_list=len(self.reflective_dict[reflective_name])
 		if len_reflective_list == 0:
 			print("ERROR: reflective flare images are not loaded properly")
-		else:
-			print("Reflective Flare Image:",reflective_name, " is loaded successfully with examples", str(len_reflective_list))
-		print("Now we have",len(self.reflective_list),'refelctive flare images')
+		
+		print("Reflective Flare Image:",reflective_name, " is loaded successfully with ", str(len_reflective_list)," flares")
 
 
 
