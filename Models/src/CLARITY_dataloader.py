@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example
+from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline
 import torch
 import torchvision.transforms.functional as F
 
@@ -31,10 +31,13 @@ def identical_transform(transform, input, target):
 class LolDatasetLoader(Dataset):
     def __init__(self, flare: bool, transform = None):
         self.flare = flare
-        self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
-        self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+        inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+        targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+        self.set_dirs(input_dirs=inputs_dirs, target_dirs=targets_dirs)
         self.transform = transform
+        self.collect_images()
 
+    def collect_images(self):
         included_extenstions = ['png']
 
         if self.flare:
@@ -52,6 +55,9 @@ class LolDatasetLoader(Dataset):
             target_images = [os.path.join(target_dir, file) for file in os.listdir(target_dir) if any(file.endswith(ext) for ext in included_extenstions)]
             self.targets.extend(target_images)
 
+    def set_dirs(self, input_dirs, target_dirs):
+        self.inputs_dirs = input_dirs
+        self.targets_dirs = target_dirs
 
     def __len__(self): # find docs: https://pytorch.org/tutorials/beginner/basics/data_tutorial.html -- 'Creating a Custom Dataset for your files'
         return len(self.inputs)
@@ -76,10 +82,28 @@ class LolDatasetLoader(Dataset):
                 input_image, target_image = identical_transform(self.transform, input_image, target_image)
 
         return input_image, target_image
-    
+
+class LolTestDatasetLoader(LolDatasetLoader):
+    def __init__(self, flare: bool, transform = None):
+        self.flare = flare
+        inputs_dirs = [r'Data/LOLdataset/eval15/low', r"Data/LOL-v2/Real_captured/Test/Low"]
+        targets_dirs = [r'Data/LOLdataset/eval15/high', r"Data/LOL-v2/Real_captured/Test/Normal"]
+        self.set_dirs(input_dirs=inputs_dirs, target_dirs=targets_dirs)
+        self.transform = transform
+        self.collect_images()
+
+class LolValidationDatasetLoader(LolDatasetLoader):
+    def __init__(self, flare: bool, transform = None):
+        self.flare = flare
+        inputs_dirs = [r"Data/LOL-v2/Synthetic/Test/Low"]
+        targets_dirs = [r"Data/LOL-v2/Synthetic/Test/Normal"]
+        self.set_dirs(input_dirs=inputs_dirs, target_dirs=targets_dirs)
+        self.transform = transform
+        self.collect_images()
+
 if __name__ == "__main__":
-    transform = preprocessing_pipeline_example()
-    l = LolDatasetLoader(flare=True, transform=transform)
+    transform = crop_flip_pipeline(512)
+    l = LolValidationDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(l, batch_size=1)
     for input, target in train_loader:
         input = input.squeeze(0)

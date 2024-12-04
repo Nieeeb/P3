@@ -40,6 +40,42 @@ def preprocessing_pipeline_example():
     ])
     return transforms
 
+# https://github.com/google-research/google-research/tree/master/flare_removal
+# "How to Train Neural Networks for Flare Removal, google"
+def cropping_only_pipeline(size):
+    transform = T.Compose([
+        T.ToImage(),
+        # Croping
+        T.CenterCrop(size) # Crop
+    ])
+    return transform
+
+# https://ieeexplore.ieee.org/document/10208804
+# "FF-Former: Swin Fourier Transformer for Nighttime Flare Removal"
+def crop_flip_pipeline(size):
+    transform = T.Compose([
+        T.ToImage(),
+        # Croping
+        T.CenterCrop(size), # Crop
+        # Flipping
+        T.RandomVerticalFlip(0.5), # 50% of the time the image is flipped
+        T.RandomHorizontalFlip(0.5)
+    ])
+    return transform
+
+# https://ieeexplore.ieee.org/document/10177254
+# "Glow in the Dark: Low-Light Image Enhancement With External Memory"
+def random_crop_and_flip_pipeline(size):
+        transform = T.Compose([
+        T.ToImage(),
+        # Croping
+        T.RandomCrop(size), # Crop
+        # Flipping
+        T.RandomVerticalFlip(0.5), # 50% of the time the image is flipped
+        T.RandomHorizontalFlip(0.5)
+    ])
+
+
 def main():
     image = Image.open("Data/LOL-v2/Synthetic/Train/Low/r028896d3t.png")
     image.show()
