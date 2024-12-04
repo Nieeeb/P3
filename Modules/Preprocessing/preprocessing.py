@@ -14,6 +14,20 @@ import torchvision.transforms.v2 as T
 import torchvision.transforms.functional as F
 import torch
 import cv2 as cv
+import math
+
+class FixedHeightResize:
+    def __init__(self, size) -> None:
+        self.size = size
+    
+    def __call__(self, img):
+        w = img.shape[2]
+        h = img.shape[3]
+        aspect_ratio = float(h) / float(w)
+        new_w = math.ceil(self.size / aspect_ratio)
+        return F.resize(img, (self.size, new_w), antialias=True)
+        
+     
 
 def tensor_to_cv(tensor_image):
     cv_image = cv.cvtColor(tensor_image.numpy().transpose(1, 2, 0), cv.COLOR_BGR2RGB)
@@ -45,6 +59,16 @@ def preprocessing_pipeline_example():
 def cropping_only_pipeline(size):
     transform = T.Compose([
         T.ToImage(),
+        # Croping
+        T.CenterCrop(size) # Crop
+    ])
+    return transform
+
+def resize_crop_pipeline(size):
+    transform = T.Compose([
+        T.ToImage(),
+        #FixedHeightResize(size),
+        T.Resize(size),
         # Croping
         T.CenterCrop(size) # Crop
     ])
