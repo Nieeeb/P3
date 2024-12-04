@@ -29,14 +29,18 @@ def identical_transform(transform, input, target):
 
 
 class LolDatasetLoader(Dataset):
-    def __init__(self, flare: bool, transform = transforms.ToTensor()):
+    def __init__(self, flare: bool, transform = None):
         self.flare = flare
-        self.root = r"Data/" #Data/LOLdataset/our485"
-        self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"] #os.path.join(self.root, r'low')
-        self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"] #os.path.join(self.root, r'high')
+        self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+        self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
         self.transform = transform
 
         included_extenstions = ['png']
+
+        if self.flare:
+            scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
+            self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
+            self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
         
         self.inputs = []
         for input_dir in self.inputs_dirs:
@@ -47,16 +51,12 @@ class LolDatasetLoader(Dataset):
         for target_dir in self.targets_dirs:
             target_images = [os.path.join(target_dir, file) for file in os.listdir(target_dir) if any(file.endswith(ext) for ext in included_extenstions)]
             self.targets.extend(target_images)
-        print(self.targets)
-
 
 
     def __len__(self): # find docs: https://pytorch.org/tutorials/beginner/basics/data_tutorial.html -- 'Creating a Custom Dataset for your files'
         return len(self.inputs)
     
     def __getitem__(self, idx):
-
-        scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
 
         input_path = self.inputs[idx]
         target_path = self.targets[idx]
@@ -65,15 +65,15 @@ class LolDatasetLoader(Dataset):
         target_image = F.to_tensor(target_image)
 
         if self.flare: 
-            flare_image_loader=Flare_Image_Loader(input_image,transform_base=None,transform_flare=None)
-            flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
-            _,_,input_image,_,flare=flare_image_loader.apply_flare()
+            _,_,input_image,_,flare=self.flare_image_loader.apply_flare(input_image)
 
             input_image = input_image.transpose(1, 2)
-            input_image, target_image = identical_transform(self.transform, input_image, target_image)
+            if self.transform:
+                input_image, target_image = identical_transform(self.transform, input_image, target_image)
 
         else:
-            input_image, target_image = identical_transform(self.transform, input_image, target_image)
+            if self.transform:
+                input_image, target_image = identical_transform(self.transform, input_image, target_image)
 
         return input_image, target_image
     
