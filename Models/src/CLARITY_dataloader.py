@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline
+from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline, resize_crop_pipeline
 import torch
 import torchvision.transforms.functional as F
 
@@ -102,10 +102,12 @@ class LolValidationDatasetLoader(LolDatasetLoader):
         self.collect_images()
 
 if __name__ == "__main__":
-    transform = crop_flip_pipeline(512)
-    l = LolValidationDatasetLoader(flare=True, transform=transform)
+    transform = resize_crop_pipeline(512)
+    l = LolDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(l, batch_size=1)
     for input, target in train_loader:
+        print(input.shape)
+        print(target.shape)
         input = input.squeeze(0)
         target = target.squeeze(0)
         input_image = input.permute(1, 2, 0).detach().cpu().numpy()
