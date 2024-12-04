@@ -54,7 +54,7 @@ def preprocessing_pipeline_example():
     ])
     return transforms
 
-# https://github.com/google-research/google-research/tree/master/flare_removal
+# https://arxiv.org/abs/2011.12485
 # "How to Train Neural Networks for Flare Removal, google"
 def cropping_only_pipeline(size):
     transform = T.Compose([

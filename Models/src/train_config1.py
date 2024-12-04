@@ -7,19 +7,20 @@ import sys
 import torch.utils
 root_dir = os.getcwd()
 sys.path.append(root_dir)
-from Models.model_zoo.konfig_1_Uformer_cross import Uformer_Cross
+#from Models.model_zoo.konfig_1_Uformer_cross import Uformer_Cross
 from Models.model_zoo.U_Net import U_Net
 
 import math
 from CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader
 from torch.utils.data import DataLoader
 from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline
-
+from tqdm import tqdm
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 model = U_Net(img_ch=3, output_ch=3)
+model.to(device)
 
 # Define the loss function and optimizer
 criterion = nn.L1Loss()  # L1 Loss is common for image restoration tasks
@@ -29,10 +30,10 @@ optimizer = optim.Adam(model.parameters(), lr=1e-4)  # Adam optimizer
 num_epochs = 50
 
 train_dataset = LolDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
-train_loader = DataLoader(dataset=train_dataset)
+train_loader = DataLoader(dataset=train_dataset, batch_size=4)
 
 val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
-val_loader = DataLoader(dataset=val_dataset)
+val_loader = DataLoader(dataset=val_dataset, batch_size=4)
 
 
 
@@ -64,13 +65,13 @@ for epoch in range(num_epochs):
 
         # Accumulate loss
         running_loss += loss.item()
-        print(loss.item())
 
         # Print statistics every 100 batches
         if (batch_idx + 1) % 100 == 0:
             print(f"Epoch [{epoch+1}/{num_epochs}], "
                   f"Batch [{batch_idx+1}/{len(train_loader)}], "
-                  f"Loss: {running_loss / 100:.4f}")
+                  f"Loss: {running_loss / 100:.4f}, "
+                  f"Learning rate: {optimizer.param_groups[0]['lr']}")
             running_loss = 0.0
 
     # Validation loop
