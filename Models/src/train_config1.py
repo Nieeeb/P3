@@ -7,10 +7,6 @@ import sys
 import torch.utils
 root_dir = os.getcwd()
 sys.path.append(root_dir)
-<<<<<<< HEAD
-#from Models.model_zoo.konfig_1_Uformer_cross import Uformer_Cross
-=======
->>>>>>> d103edf7 (ælkoæk)
 from Models.model_zoo.U_Net import U_Net
 
 import math
@@ -33,17 +29,10 @@ optimizer = optim.Adam(model.parameters(), lr=1e-4)  # Adam optimizer
 num_epochs = 1
 
 train_dataset = LolDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
-<<<<<<< HEAD
 train_loader = DataLoader(dataset=train_dataset, batch_size=4)
 
 val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
 val_loader = DataLoader(dataset=val_dataset, batch_size=4)
-=======
-train_loader = DataLoader(dataset=train_dataset, batch_size=8)
-
-val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
-val_loader = DataLoader(dataset=val_dataset, batch_size=8)
->>>>>>> d103edf7 (ælkoæk)
 
 
 
