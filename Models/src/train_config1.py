@@ -7,7 +7,10 @@ import sys
 import torch.utils
 root_dir = os.getcwd()
 sys.path.append(root_dir)
+<<<<<<< HEAD
 #from Models.model_zoo.konfig_1_Uformer_cross import Uformer_Cross
+=======
+>>>>>>> d103edf7 (ælkoæk)
 from Models.model_zoo.U_Net import U_Net
 
 import math
@@ -27,13 +30,20 @@ criterion = nn.L1Loss()  # L1 Loss is common for image restoration tasks
 optimizer = optim.Adam(model.parameters(), lr=1e-4)  # Adam optimizer
 
 # Number of epochs to train
-num_epochs = 50
+num_epochs = 1
 
 train_dataset = LolDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
+<<<<<<< HEAD
 train_loader = DataLoader(dataset=train_dataset, batch_size=4)
 
 val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
 val_loader = DataLoader(dataset=val_dataset, batch_size=4)
+=======
+train_loader = DataLoader(dataset=train_dataset, batch_size=8)
+
+val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
+val_loader = DataLoader(dataset=val_dataset, batch_size=8)
+>>>>>>> d103edf7 (ælkoæk)
 
 
 
@@ -43,6 +53,7 @@ for epoch in range(num_epochs):
     running_loss = 0.0
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+        print(batch_idx)
         # print(inputs.shape)
         # Move data to the appropriate device (CPU or GPU)
         inputs = inputs.to(device)
@@ -50,14 +61,13 @@ for epoch in range(num_epochs):
 
         # Zero the parameter gradients
         optimizer.zero_grad()
-
-
         
         # Forward pass
         outputs = model(inputs)
 
         # Compute loss
         loss = criterion(outputs, targets)
+        print(loss.item())
 
         # Backward pass and optimize
         loss.backward()
@@ -94,5 +104,6 @@ for epoch in range(num_epochs):
 
     # Optionally save the model checkpoint
     # torch.save(model.state_dict(), f"uformer_epoch_{epoch+1}.pth")
+torch.save(model.state_dict(), 'model_final.pth')
 
 print("Training completed.")
