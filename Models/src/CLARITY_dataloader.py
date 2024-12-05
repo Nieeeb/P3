@@ -102,7 +102,7 @@ class LolValidationDatasetLoader(LolDatasetLoader):
         self.collect_images()
 
 if __name__ == "__main__":
-    transform = resize_crop_pipeline(512)
+    transform = resize_pipeline(512)
     l = LolDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(l, batch_size=1)
     for input, target in train_loader:
