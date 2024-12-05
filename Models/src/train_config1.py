@@ -34,6 +34,7 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=2)
 val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
 val_loader = DataLoader(dataset=val_dataset, batch_size=2)
 
+best_val_loss = 100
 
 patience = 10
 # Training loop

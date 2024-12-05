@@ -37,6 +37,8 @@ val_loader = DataLoader(dataset=val_dataset, batch_size=2)
 
 patience = 10
 
+
+best_val_loss = 100
 # Training loop
 for epoch in range(num_epochs):
     model.train()  # Set model to training mode
