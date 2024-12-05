@@ -35,7 +35,7 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=2)
 val_dataset = LolValidationDatasetLoader(flare=True, transform=crop_flip_pipeline(128))
 val_loader = DataLoader(dataset=val_dataset, batch_size=2)
 
-
+patience = 10
 
 # Training loop
 for epoch in range(num_epochs):
@@ -92,6 +92,20 @@ for epoch in range(num_epochs):
     avg_val_loss = val_loss / len(val_loader)
     print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
 
+
+    #EARLY DROPOUT
+    if avg_val_loss < best_val_loss:
+        best_val_loss = avg_val_loss
+        epochs_without_improvement = 0
+        # Save the best model
+        torch.save(model.state_dict(), 'best_model.pth')
+        print(f"Validation loss improved. Model saved.")
+    else:
+        epochs_without_improvement += 1
+        print(f"No improvement in validation loss for {epochs_without_improvement} epoch(s).")
+        if epochs_without_improvement >= patience:
+            print(f"Early stopping triggered after {patience} epochs without improvement.")
+            break
     # Optionally save the model checkpoint
     # torch.save(model.state_dict(), f"uformer_epoch_{epoch+1}.pth")
 
