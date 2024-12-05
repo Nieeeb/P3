@@ -64,13 +64,13 @@ def cropping_only_pipeline(size):
     ])
     return transform
 
-def resize_crop_pipeline(size):
+# https://arxiv.org/pdf/2407.12431v1
+# "GLARE: Low Light Image Enhancement via Generative Latent Feature based Codebook Retrieval"
+def resize_pipeline(size):
     transform = T.Compose([
         T.ToImage(),
         #FixedHeightResize(size),
         T.Resize(size),
-        # Croping
-        T.CenterCrop(size) # Crop
     ])
     return transform
 

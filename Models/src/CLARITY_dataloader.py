@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline, resize_crop_pipeline
+from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline, resize_pipeline
 import torch
 import torchvision.transforms.functional as F
 

@@ -8,7 +8,7 @@ import torch.utils
 root_dir = os.getcwd()
 sys.path.append(root_dir)
 #from Models.model_zoo.konfig_1_Uformer_cross import Uformer_Cross
-from Models.model_zoo.U_Net import U_Net
+from Models.model_zoo.mirnet_v2_arch import MIRNet_v2
 
 import math
 from CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader
@@ -19,7 +19,7 @@ from tqdm import tqdm
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
-model = U_Net(img_ch=3, output_ch=3)
+model = MIRNet_v2(inp_channels=3, out_channels=3)
 model.to(device)
 
 # Define the loss function and optimizer
