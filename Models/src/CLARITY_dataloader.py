@@ -16,7 +16,7 @@ import torchvision.transforms.functional as F
 data_path = Path(__file__).resolve().parent.parent / 'data'
 sys.path.append(str(data_path))
 
-from APPLY_FLARE_TO_IMG import Flare_Image_Loader
+from Models.src.APPLY_FLARE_TO_IMG import Flare_Image_Loader
 
 # Takes input and output and ensures the same transformation is done to both of them
 # Helps when some tranformations are random, ensuring same transformation is done to input and target
