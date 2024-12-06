@@ -1,0 +1,43 @@
+{
+  "os":  "Linux-6.11.5-arch1-1.1-g14-x86_64-with-glibc2.40",
+  "python":  "3.11.10",
+  "startedAt":  "2024-12-06T12:54:08.496544Z",
+  "program":  "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py",
+  "codePath":  "Modules/train.py",
+  "git":  {
+    "remote":  "https://github.com/Nieeeb/P3.git",
+    "commit":  "0ca05b950a1c1074af7abad660396e43e7976e04"
+  },
+  "email":  "william_nieboer@hotmail.com",
+  "root":  "/home/nieb/Projects/DAKI Projects/P3",
+  "host":  "Unifier",
+  "username":  "nieb",
+  "executable":  "/home/nieb/.conda/envs/UNI/bin/python",
+  "codePathLocal":  "Modules/train.py",
+  "cpu_count":  8,
+  "cpu_count_logical":  16,
+  "gpu":  "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "964812906496",
+      "used":  "516643364864"
+    }
+  },
+  "memory":  {
+    "total":  "16139620352"
+  },
+  "cpu":  {
+    "count":  8,
+    "countLogical":  16
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 3050 Laptop GPU",
+      "memoryTotal":  "4294967296",
+      "cudaCores":  2048,
+      "architecture":  "Ampere"
+    }
+  ],
+  "cudaVersion":  "12.7"
+}

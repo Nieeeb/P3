@@ -12,6 +12,26 @@ from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeli
 
 import torch
 import torch.optim as optim
+from torchmetrics.image import TotalVariation
+
+class CharbonnierLoss(torch.nn.Module):
+    def __init__(self):
+        super(CharbonnierLoss, self).__init__()
+    
+    def forward(self, output, target):
+        epsilon=1e-3
+        return torch.mean(torch.sqrt((target - output) + epsilon**2))
+
+def prepare_loss(loss):
+    # Define the loss function
+    if loss == 'charbonnier':
+        criterion = CharbonnierLoss()
+    elif loss == 'total_variation':
+        criterion = TotalVariation()
+    else:
+        print("Wrong loss type given. Accepted inputs: charbonnier, total_variation")
+        criterion = None
+    return criterion
 
 def prepare_dataset(dataset_name, transform):
     if dataset_name == 'LowLightLensFlare':
@@ -25,7 +45,7 @@ def prepare_dataset(dataset_name, transform):
         dataset = None
     return dataset
 
-def prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path):
+def prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
     state = {
             'model': model_name,
             'optimizer': optimizer_name,
@@ -39,17 +59,20 @@ def prepare_default_state(model_name, optimizer_name, preprocessing_name, prepro
             'epochs_without_improvement': 0,
             'patience': 10,
             'output_path': output_path,
-            'loss' : 
+            'loss': loss,
+            'batch_size': batch_size,
+            'scheduler': 'CosineAnnealing'
         }
     return state
 
-def prepare_folders(model_name, preprocessing_name, dataset_name, output_path):
-    model_path = output_path + model_name + '_' + preprocessing_name + '_' + dataset_name
+def prepare_folders(model_name, preprocessing_name, dataset_name, output_path, loss):
+    model_path = output_path + model_name + '_' + preprocessing_name + '_' + dataset_name + '_' + loss
 
     expected_folders = [output_path, model_path,
                         model_path + '/model_checkpoints/',
                         model_path + '/optimizer_checkpoints/',
-                        model_path + '/training_states/'
+                        model_path + '/training_states/',
+                        model_path + '/scheduler_checkpoints/'
                         ]
 
     for folder in expected_folders:
@@ -90,9 +113,9 @@ def prepare_preprocessor(preprocessing_name, preprocessing_size):
         transform = None
     return transform
 
-def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path):
-    prepare_folders(model_name, preprocessing_name, dataset_name, output_path)
-    states_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/training_states/"
+def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
+    prepare_folders(model_name, preprocessing_name, dataset_name, output_path, loss)
+    states_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/training_states/"
     states = os.listdir(states_path)
 
     if len(states) >= 1:
@@ -104,28 +127,35 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
             if epoch >= highest_epoch:
                 highest_epoch = epoch
                 current_state = state
-        state_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/training_states/{current_state}"
+        state_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/training_states/{current_state}"
         state = torch.load(state_path, weights_only=False)
-        prepare_folders(model_name, preprocessing_name, dataset_name, output_path)
+        prepare_folders(model_name, preprocessing_name, dataset_name, output_path, loss)
 
         model_name = state['model']
-        model_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/model_checkpoints/{model_name}_model_epoch_{highest_epoch}.pth"
+        model_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/model_checkpoints/{model_name}_model_epoch_{highest_epoch}.pth"
         model = prepare_model(model_name)
         model.load_state_dict(torch.load(model_path, weights_only=True))
 
         optimizer_name = state['optimizer']
-        optimizer_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{highest_epoch}.pth"
+        optimizer_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{highest_epoch}.pth"
         optimizer = prepare_optimizer(optimizer_name, model)
         optimizer.load_state_dict(torch.load(optimizer_path, weights_only=True))
+
+        scheduler_name = state['scheduler']
+        scheduler_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/scheduler_checkpoints/{model_name}_{scheduler_name}_optimizer_epoch_{highest_epoch}.pth"
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1)
+        scheduler.load_state_dict(torch.load(scheduler_path, weights_only=False))
+
 
     else:
         model = prepare_model(model_name)
         optimizer = prepare_optimizer(optimizer_name, model)
-        state = prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path)
-    
-    return model, optimizer, state
+        state = prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1)
 
-def save_model(model, optimizer, state):
+    return model, optimizer, scheduler, state
+
+def save_model(model, optimizer, scheduler, state):
     current_epoch = state['current_epoch']
     output_path = state['output_path']
     model_name = state['model']
@@ -133,22 +163,29 @@ def save_model(model, optimizer, state):
     preprocessing_name = state['preprocessing_name']
     preprocessing_size = state['preprocessing_size']
     dataset_name = state['dataset']
-    prepare_folders(model_name, preprocessing_name, dataset_name, output_path)
+    loss_name = state['loss']
+    scheduler_name = state['scheduler']
+    prepare_folders(model_name, preprocessing_name, dataset_name, output_path, loss_name)
     
-    model_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/model_checkpoints/{model_name}_model_epoch_{current_epoch}.pth"
+    model_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss_name}/model_checkpoints/{model_name}_model_epoch_{current_epoch}.pth"
     torch.save(model.state_dict(), model_save_path)
-    optimizer_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{current_epoch}.pth"
+    optimizer_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{current_epoch}.pth"
     torch.save(optimizer.state_dict(), optimizer_save_path)
-    state_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/training_states/{model_name}_state_epoch_{current_epoch}.pth"
+    state_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss_name}/training_states/{model_name}_state_epoch_{current_epoch}.pth"
     torch.save(state, state_save_path)
+    scheduler_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss_name}/scheduler_checkpoints/{model_name}_{scheduler_name}_optimizer_epoch_{current_epoch}.pth"
+    torch.save(scheduler.state_dict(), scheduler_save_path)
+
 
 if __name__ == "__main__":
-    state = prepare_default_state('MIRNet', 'Adam', 'crop_only', 512, 'wtf is this shit', 'Outputs/')
+    state = prepare_default_state('MIRNet', 'Adam', 'crop_only', 512, 'Mixed', 'Outputs/', 'charbonnier', 8)
     model = MIRNet_v2(inp_channels=3, out_channels=3)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1)
 
-    save_model(model, optimizer, state)
+    save_model(model, optimizer, scheduler, state)
     preprocessing_name = 'crop_only'
     preprocessing_size = 512
-    dataset_name = 'wtf is this shit'
-    model, optimizer, state = load_latest_checkpoint('MIRNet', 'Adam', preprocessing_name, preprocessing_size, dataset_name, 'Outputs/')
+    dataset_name = 'Mixed'
+    loss = 'charbonnier'
+    model, optimizer, scheduler, state = load_latest_checkpoint('MIRNet', 'Adam', preprocessing_name, preprocessing_size, dataset_name, 'Outputs/', loss, 8)

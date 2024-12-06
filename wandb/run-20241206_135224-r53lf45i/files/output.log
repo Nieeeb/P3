@@ -1,0 +1,9 @@
+Using device: cuda
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Traceback (most recent call last):
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 163, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 46, in train
+    val_dataset = LolValidationDatasetLoader(flare=True, transform=transform, LowLightLensFlare=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: LolValidationDatasetLoader.__init__() got an unexpected keyword argument 'LowLightLensFlare'

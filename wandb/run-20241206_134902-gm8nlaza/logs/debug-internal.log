@@ -1,0 +1,16 @@
+{"time":"2024-12-06T13:49:02.046727285+01:00","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2024-12-06T13:49:02.046771639+01:00","level":"INFO","msg":"created symlink","path":"/home/nieb/Projects/DAKI Projects/P3/wandb/run-20241206_134902-gm8nlaza/logs/debug-core.log"}
+{"time":"2024-12-06T13:49:02.152889067+01:00","level":"INFO","msg":"created new stream","id":"gm8nlaza"}
+{"time":"2024-12-06T13:49:02.152949571+01:00","level":"INFO","msg":"stream: started","id":"gm8nlaza"}
+{"time":"2024-12-06T13:49:02.15302319+01:00","level":"INFO","msg":"sender: started","stream_id":"gm8nlaza"}
+{"time":"2024-12-06T13:49:02.152984747+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"gm8nlaza"}}
+{"time":"2024-12-06T13:49:02.153053306+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"gm8nlaza"}}
+{"time":"2024-12-06T13:49:02.672087916+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T13:49:03.14248043+01:00","level":"INFO","msg":"stream: closing","id":"gm8nlaza"}
+{"time":"2024-12-06T13:49:03.142510998+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-06T13:49:03.142912764+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-06T13:49:06.367103187+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-06T13:49:06.733868758+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"gm8nlaza"}}
+{"time":"2024-12-06T13:49:06.733927649+01:00","level":"INFO","msg":"sender: closed","stream_id":"gm8nlaza"}
+{"time":"2024-12-06T13:49:06.733911389+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"gm8nlaza"}}
+{"time":"2024-12-06T13:49:06.734037185+01:00","level":"INFO","msg":"stream: closed","id":"gm8nlaza"}

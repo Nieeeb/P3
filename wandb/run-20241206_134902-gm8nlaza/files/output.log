@@ -1,0 +1,8 @@
+Using device: cuda
+Traceback (most recent call last):
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 163, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 43, in train
+    train_dataset = prepare_dataset(dataset_name)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: prepare_dataset() missing 1 required positional argument: 'transform'
