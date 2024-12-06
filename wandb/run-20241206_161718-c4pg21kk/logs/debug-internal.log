@@ -6,3 +6,5 @@
 {"time":"2024-12-06T16:17:18.3821732+01:00","level":"INFO","msg":"sender: started","stream_id":"c4pg21kk"}
 {"time":"2024-12-06T16:17:18.3821732+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"c4pg21kk"}
 {"time":"2024-12-06T16:17:18.8924718+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T16:19:28.893908+01:00","level":"ERROR","msg":"monitor: memory: error sampling metrics: The parameter is incorrect."}
+{"time":"2024-12-06T16:19:28.9005617+01:00","level":"ERROR","msg":"monitor: cpu: error sampling metrics: could not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 13624"}
