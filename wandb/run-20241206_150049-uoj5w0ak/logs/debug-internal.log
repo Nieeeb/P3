@@ -1,0 +1,16 @@
+{"time":"2024-12-06T15:00:49.0770883+01:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-06T15:00:49.0770883+01:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\wandb\\run-20241206_150049-uoj5w0ak\\logs\\debug-core.log"}
+{"time":"2024-12-06T15:00:49.2087745+01:00","level":"INFO","msg":"created new stream","id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:49.2087745+01:00","level":"INFO","msg":"stream: started","id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:49.2087745+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:49.2087745+01:00","level":"INFO","msg":"handler: started","stream_id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:49.2087745+01:00","level":"INFO","msg":"sender: started","stream_id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:49.6446205+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T15:00:57.4639435+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-06T15:00:57.4639435+01:00","level":"INFO","msg":"stream: closing","id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:57.4650289+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-06T15:00:58.4315591+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-06T15:00:58.9967254+01:00","level":"INFO","msg":"handler: closed","stream_id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:58.9967254+01:00","level":"INFO","msg":"sender: closed","stream_id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:58.9967254+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"uoj5w0ak"}
+{"time":"2024-12-06T15:00:58.9974225+01:00","level":"INFO","msg":"stream: closed","id":"uoj5w0ak"}

@@ -1,0 +1,16 @@
+Using device: cpu
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Traceback (most recent call last):
+  File "c:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\train.py", line 163, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "c:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\train.py", line 76, in train
+    loss.backward()
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\_tensor.py", line 521, in backward
+    torch.autograd.backward(
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\autograd\__init__.py", line 289, in backward
+    _engine_run_backward(
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\autograd\graph.py", line 769, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

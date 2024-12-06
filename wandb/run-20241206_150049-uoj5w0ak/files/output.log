@@ -1,0 +1,23 @@
+Using device: cpu
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Traceback (most recent call last):
+  File "C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\train.py", line 163, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\train.py", line 73, in train
+    loss = criterion(outputs, targets)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\nn\modules\module.py", line 1554, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\nn\modules\module.py", line 1564, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torchmetrics\metric.py", line 316, in forward
+    self._forward_cache = self._forward_reduce_state_update(*args, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torchmetrics\metric.py", line 385, in _forward_reduce_state_update
+    self.update(*args, **kwargs)
+  File "C:\Users\Victor Steinrud\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torchmetrics\metric.py", line 550, in wrapped_func
+    update(*args, **kwargs)
+TypeError: TotalVariation.update() takes 2 positional arguments but 3 were given

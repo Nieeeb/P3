@@ -1,0 +1,16 @@
+{"time":"2024-12-06T14:53:01.2915407+01:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-06T14:53:01.2915407+01:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\wandb\\run-20241206_145301-jr2won9u\\logs\\debug-core.log"}
+{"time":"2024-12-06T14:53:01.6748631+01:00","level":"INFO","msg":"created new stream","id":"jr2won9u"}
+{"time":"2024-12-06T14:53:01.6748631+01:00","level":"INFO","msg":"stream: started","id":"jr2won9u"}
+{"time":"2024-12-06T14:53:01.6748631+01:00","level":"INFO","msg":"handler: started","stream_id":"jr2won9u"}
+{"time":"2024-12-06T14:53:01.6748631+01:00","level":"INFO","msg":"sender: started","stream_id":"jr2won9u"}
+{"time":"2024-12-06T14:53:01.6753726+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"jr2won9u"}
+{"time":"2024-12-06T14:53:02.0212636+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T14:53:33.0021253+01:00","level":"INFO","msg":"stream: closing","id":"jr2won9u"}
+{"time":"2024-12-06T14:53:33.0037153+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-06T14:53:33.0096832+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-06T14:53:35.8112664+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-06T14:53:36.0780968+01:00","level":"INFO","msg":"handler: closed","stream_id":"jr2won9u"}
+{"time":"2024-12-06T14:53:36.0786294+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"jr2won9u"}
+{"time":"2024-12-06T14:53:36.0786294+01:00","level":"INFO","msg":"sender: closed","stream_id":"jr2won9u"}
+{"time":"2024-12-06T14:53:36.0786294+01:00","level":"INFO","msg":"stream: closed","id":"jr2won9u"}
