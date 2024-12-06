@@ -17,12 +17,13 @@ import argparse
 def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
     model, optimizer, scheduler, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
-
+    test_name = f"{state['model']}_{state['preprocessing_name']}_{state['dataset']}_{state['current_epoch']}"
     wandb.login()
 
     wandb.init(
         project="CLARITY",
-        config=state
+        config=state,
+        name=test_name
     )
 
     print("Loaded state:\n", state)
@@ -148,7 +149,6 @@ def parse_args():
     parser.add_argument('--preprocessing_size', type=int, default=512, help="Desired input size")
     parser.add_argument('--optimizer', type=str, choices=['Adam'], default='Adam', help="What optimizer to use")
     parser.add_argument('--scheduler', type=str, choices=['CosineAnnealing'], default='CosineAnnealing', help="Learning rate scheduler")
-    parser.add_argument('--min_lr', type=float, default=1e-6, help="Minimum learning rate for the scheduler")
     parser.add_argument('--num_workers', type=int, default=4, help="Number of workers for DataLoader")
     parser.add_argument('--patience', type=int, default=10, help="Patience for early stopping")
     parser.add_argument('--dataset', type=str, choices=['Mixed', 'LowLightLensFlare', 'LensFlareLowLight'], default='Mixed', help="What data to train on")

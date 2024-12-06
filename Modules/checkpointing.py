@@ -93,7 +93,7 @@ def prepare_model(model_name):
 
 def prepare_optimizer(optimizer_name, model):
     if optimizer_name == 'Adam':
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)
+        optimizer = optim.Adam(model.parameters(), lr=2e-4)
     else:
         print("Wrong optimizer type given. Accepted inputs: Adam")
         optimizer = None
@@ -143,7 +143,7 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
 
         scheduler_name = state['scheduler']
         scheduler_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/scheduler_checkpoints/{model_name}_{scheduler_name}_optimizer_epoch_{highest_epoch}.pth"
-        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1, eta_min=1e-6)
         scheduler.load_state_dict(torch.load(scheduler_path, weights_only=False))
 
 
@@ -151,7 +151,7 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
         model = prepare_model(model_name)
         optimizer = prepare_optimizer(optimizer_name, model)
         state = prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
-        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1, eta_min=1e-6)
 
     return model, optimizer, scheduler, state
 
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     state = prepare_default_state('MIRNet', 'Adam', 'crop_only', 512, 'Mixed', 'Outputs/', 'charbonnier', 8)
     model = MIRNet_v2(inp_channels=3, out_channels=3)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1, eta_min=1e-6)
 
     save_model(model, optimizer, scheduler, state)
     preprocessing_name = 'crop_only'
