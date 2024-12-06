@@ -1,0 +1,36 @@
+{
+  "os":  "Windows-10-10.0.26100-SP0",
+  "python":  "3.11.9",
+  "startedAt":  "2024-12-06T14:30:08.964882Z",
+  "args":  [
+    "--model",
+    "CAN"
+  ],
+  "program":  "C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\Modules\\train.py",
+  "codePath":  "Modules\\train.py",
+  "git":  {
+    "remote":  "https://github.com/Nieeeb/P3.git",
+    "commit":  "f87d808fecf119e2fbfbe1d37b36607b553e580c"
+  },
+  "email":  "vstein23@student.aau.dk",
+  "root":  "C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3",
+  "host":  "MSI",
+  "username":  "Victor Steinrud",
+  "executable":  "C:\\Users\\Victor Steinrud\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe",
+  "codePathLocal":  "Modules\\train.py",
+  "cpu_count":  12,
+  "cpu_count_logical":  16,
+  "disk":  {
+    "/":  {
+      "total":  "492518240256",
+      "used":  "476760297472"
+    }
+  },
+  "memory":  {
+    "total":  "16867033088"
+  },
+  "cpu":  {
+    "count":  12,
+    "countLogical":  16
+  }
+}

@@ -1,0 +1,16 @@
+{"time":"2024-12-06T15:28:26.3541884+01:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-06T15:28:26.3541884+01:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\wandb\\run-20241206_152826-u3lgu8xi\\logs\\debug-core.log"}
+{"time":"2024-12-06T15:28:26.4808701+01:00","level":"INFO","msg":"created new stream","id":"u3lgu8xi"}
+{"time":"2024-12-06T15:28:26.4808701+01:00","level":"INFO","msg":"stream: started","id":"u3lgu8xi"}
+{"time":"2024-12-06T15:28:26.4808701+01:00","level":"INFO","msg":"handler: started","stream_id":"u3lgu8xi"}
+{"time":"2024-12-06T15:28:26.4808701+01:00","level":"INFO","msg":"sender: started","stream_id":"u3lgu8xi"}
+{"time":"2024-12-06T15:28:26.4808701+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"u3lgu8xi"}
+{"time":"2024-12-06T15:28:26.8418375+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T15:29:19.9825755+01:00","level":"INFO","msg":"stream: closing","id":"u3lgu8xi"}
+{"time":"2024-12-06T15:29:19.9883642+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-06T15:29:20.0086992+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-06T15:29:23.6982218+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-06T15:29:24.0663821+01:00","level":"INFO","msg":"handler: closed","stream_id":"u3lgu8xi"}
+{"time":"2024-12-06T15:29:24.0663821+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"u3lgu8xi"}
+{"time":"2024-12-06T15:29:24.0663821+01:00","level":"INFO","msg":"sender: closed","stream_id":"u3lgu8xi"}
+{"time":"2024-12-06T15:29:24.0681325+01:00","level":"INFO","msg":"stream: closed","id":"u3lgu8xi"}
