@@ -9,7 +9,7 @@ from Models.model_zoo.U_Net import U_Net
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader, LolTestDatasetLoader
 
 from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
-
+from torch import nn
 import torch
 import torch.optim as optim
 from torchmetrics.image import TotalVariation
@@ -79,6 +79,13 @@ def prepare_folders(model_name, preprocessing_name, dataset_name, output_path, l
         if not os.path.isdir(folder):
             os.mkdir(folder)
 
+def init_weights(model):
+    if isinstance(model, nn.Conv2d):
+        nn.init.kaiming_normal_(model.weight, nonlinearity='relu')
+        if model.bias is not None:
+            nn.init.zeros_(model.bias)
+
+
 def prepare_model(model_name):
     if model_name == 'MIRNet':
         model = MIRNet_v2(inp_channels=3, out_channels=3)
@@ -89,6 +96,7 @@ def prepare_model(model_name):
     else:
         print("Wrong model type given. Accepted inputs: MIRNet, UNet, CAN")
         model = None
+    model.apply(init_weights)
     return model
 
 def prepare_optimizer(optimizer_name, model):
