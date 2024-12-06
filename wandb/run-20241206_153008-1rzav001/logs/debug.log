@@ -1,0 +1,26 @@
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Current SDK version is 0.18.7
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Configure stats pid to 14400
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Loading settings from C:\Users\Victor Steinrud\.config\wandb\settings
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Loading settings from C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\wandb\settings
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Loading settings from environment variables: {}
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Inferring run settings from compute environment: {'program_relpath': 'Modules\\train.py', 'program_abspath': 'C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\Modules\\train.py', 'program': 'C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\Modules\\train.py'}
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Applying login settings: {}
+2024-12-06 15:30:08,959 INFO    MainThread:14400 [wandb_setup.py:_flush():79] Applying login settings: {}
+2024-12-06 15:30:08,960 INFO    MainThread:14400 [wandb_init.py:_log_setup():533] Logging user logs to C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\wandb\run-20241206_153008-1rzav001\logs\debug.log
+2024-12-06 15:30:08,960 INFO    MainThread:14400 [wandb_init.py:_log_setup():534] Logging internal logs to C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\wandb\run-20241206_153008-1rzav001\logs\debug-internal.log
+2024-12-06 15:30:08,960 INFO    MainThread:14400 [wandb_init.py:init():619] calling init triggers
+2024-12-06 15:30:08,960 INFO    MainThread:14400 [wandb_init.py:init():626] wandb.init called with sweep_config: {}
+config: {'model': 'CAN', 'optimizer': 'Adam', 'preprocessing_name': 'resize', 'preprocessing_size': 512, 'dataset': 'Mixed', 'current_epoch': 0, 'num_epochs': 1000, 'save_interval': 10, 'best_val_loss': 100, 'epochs_without_improvement': 0, 'patience': 10, 'output_path': 'Outputs/', 'loss': 'charbonnier', 'batch_size': 4, 'scheduler': 'CosineAnnealing'}
+2024-12-06 15:30:08,960 INFO    MainThread:14400 [wandb_init.py:init():669] starting backend
+2024-12-06 15:30:08,960 INFO    MainThread:14400 [wandb_init.py:init():673] sending inform_init request
+2024-12-06 15:30:08,963 INFO    MainThread:14400 [backend.py:_multiprocessing_setup():104] multiprocessing start_methods=spawn, using: spawn
+2024-12-06 15:30:08,964 INFO    MainThread:14400 [wandb_init.py:init():686] backend started and connected
+2024-12-06 15:30:08,970 INFO    MainThread:14400 [wandb_init.py:init():781] updated telemetry
+2024-12-06 15:30:09,039 INFO    MainThread:14400 [wandb_init.py:init():814] communicating run to backend with 90.0 second timeout
+2024-12-06 15:30:09,406 INFO    MainThread:14400 [wandb_init.py:init():867] starting run threads in backend
+2024-12-06 15:30:09,772 INFO    MainThread:14400 [wandb_run.py:_console_start():2456] atexit reg
+2024-12-06 15:30:09,773 INFO    MainThread:14400 [wandb_run.py:_redirect():2305] redirect: wrap_raw
+2024-12-06 15:30:09,773 INFO    MainThread:14400 [wandb_run.py:_redirect():2370] Wrapping output streams.
+2024-12-06 15:30:09,773 INFO    MainThread:14400 [wandb_run.py:_redirect():2395] Redirects installed.
+2024-12-06 15:30:09,776 INFO    MainThread:14400 [wandb_init.py:init():911] run started, returning control to user process
+2024-12-06 15:30:30,326 WARNING MsgRouterThr:14400 [router.py:message_loop():75] message_loop has been closed

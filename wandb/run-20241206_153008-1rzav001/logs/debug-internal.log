@@ -1,0 +1,16 @@
+{"time":"2024-12-06T15:30:08.9668594+01:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-06T15:30:08.9668594+01:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\wandb\\run-20241206_153008-1rzav001\\logs\\debug-core.log"}
+{"time":"2024-12-06T15:30:09.0903572+01:00","level":"INFO","msg":"created new stream","id":"1rzav001"}
+{"time":"2024-12-06T15:30:09.0903572+01:00","level":"INFO","msg":"stream: started","id":"1rzav001"}
+{"time":"2024-12-06T15:30:09.0903572+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"1rzav001"}
+{"time":"2024-12-06T15:30:09.0903572+01:00","level":"INFO","msg":"sender: started","stream_id":"1rzav001"}
+{"time":"2024-12-06T15:30:09.0903572+01:00","level":"INFO","msg":"handler: started","stream_id":"1rzav001"}
+{"time":"2024-12-06T15:30:09.418004+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T15:30:30.3253833+01:00","level":"INFO","msg":"stream: closing","id":"1rzav001"}
+{"time":"2024-12-06T15:30:30.3265717+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-06T15:30:30.3276318+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-06T15:30:31.1678064+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-06T15:30:31.4203973+01:00","level":"INFO","msg":"handler: closed","stream_id":"1rzav001"}
+{"time":"2024-12-06T15:30:31.4203973+01:00","level":"INFO","msg":"sender: closed","stream_id":"1rzav001"}
+{"time":"2024-12-06T15:30:31.4203973+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"1rzav001"}
+{"time":"2024-12-06T15:30:31.4225983+01:00","level":"INFO","msg":"stream: closed","id":"1rzav001"}
