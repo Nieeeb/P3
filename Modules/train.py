@@ -24,7 +24,9 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
         project="CLARITY",
         config=state
     )
-    
+
+    print("Loaded state:\n", state)
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
@@ -50,8 +52,11 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
     best_val_loss = state['best_val_loss']
 
+    epochs_without_improvement = state['epochs_without_improvement']
+
     # Training loop
     for epoch in range(starting_epoch, num_epochs):
+        print(f"Starting training for epoch {epoch}")
         model.train()  # Set model to training mode
         running_loss = 0.0
 
@@ -135,19 +140,19 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
-    parser.add_argument('--loss', choices=['charbonnier', 'total_variation'], default='charbonnier', help="Loss function")
-    parser.add_argument('--model', choices=['MIRNet', 'UNet', 'CAN'], default='UNet', help="What model to train")
+    parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation'], default='charbonnier', help="Loss function")
+    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN'], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
-    parser.add_argument('--batch_size', type=int, choices=[4, 8], default=4, help="Batch size")
-    parser.add_argument('--preprocessing_name', choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip'], default='resize', help="How to augment images")
+    parser.add_argument('--batch_size', type=int, default=4, help="Batch size")
+    parser.add_argument('--preprocessing_name', type=str, choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip'], default='resize', help="How to augment images")
     parser.add_argument('--preprocessing_size', type=int, default=512, help="Desired input size")
-    parser.add_argument('--optimizer', choices=['Adam'], default='Adam', help="What optimizer to use")
-    parser.add_argument('--scheduler', choices=['CosineAnnealing'], default='CosineAnnealing', help="Learning rate scheduler")
+    parser.add_argument('--optimizer', type=str, choices=['Adam'], default='Adam', help="What optimizer to use")
+    parser.add_argument('--scheduler', type=str, choices=['CosineAnnealing'], default='CosineAnnealing', help="Learning rate scheduler")
     parser.add_argument('--min_lr', type=float, default=1e-6, help="Minimum learning rate for the scheduler")
     parser.add_argument('--num_workers', type=int, default=4, help="Number of workers for DataLoader")
     parser.add_argument('--patience', type=int, default=10, help="Patience for early stopping")
-    parser.add_argument('--dataset', choices=['Mixed', 'LowLightLensFlare', 'LensFlareLowLight'], default='Mixed', help="What data to train on")
-    parser.add_argument('--output_path', type=str, default='Output/', help="Where to output checkpoints")
+    parser.add_argument('--dataset', type=str, choices=['Mixed', 'LowLightLensFlare', 'LensFlareLowLight'], default='Mixed', help="What data to train on")
+    parser.add_argument('--output_path', type=str, default='Outputs/', help="Where to output checkpoints")
     return parser.parse_args()
 
 if __name__ == "__main__":
