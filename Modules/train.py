@@ -4,6 +4,9 @@ root_dir = os.getcwd()
 sys.path.append(root_dir)
 import torch
 import torch.nn as nn
+import torch.optim as optim
+import math
+import argparse
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -11,8 +14,20 @@ from checkpointing import load_latest_checkpoint, save_model, prepare_preprocess
 import wandb
 import argparse
 
-def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path):
-    model, optimizer, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path)
+def parse_args():
+    parser = argparse.ArgumentParser(description="Training Configuration")
+    parser.add_argument('--loss', choices=['charbonnier', 'total_variation'], default='charbonnier', help="Loss function")
+    parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
+    parser.add_argument('--batch_size', type=int, choices=[4, 8], default=4, help="Batch size")
+    parser.add_argument('--scheduler', choices=['cosine'], default='cosine', help="Learning rate scheduler")
+    parser.add_argument('--min_lr', type=float, default=1e-6, help="Minimum learning rate for the scheduler")
+    parser.add_argument('--num_workers', type=int, default=4, help="Number of workers for DataLoader")
+    parser.add_argument('--max_epochs', type=int, default=50, help="Maximum number of epochs")
+    parser.add_argument('--patience', type=int, default=5, help="Patience for early stopping")
+    return parser.parse_args()
+
+def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path):
+    model, optimizer, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
 
     wandb.login()
@@ -143,4 +158,5 @@ if __name__ == "__main__":
     preprocessing_size = 512
     dataset_name = 'wtf is this shit'
     output_path = 'Outputs/'
-    train(model, optimizer, preprocessing_name, preprocessing_size, dataset_name, output_path)
+    args = parse_args()
+    train(model, optimizer, preprocessing_name, preprocessing_size, output_path, args=args)
