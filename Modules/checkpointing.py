@@ -12,7 +12,7 @@ from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeli
 from torch import nn
 import torch
 import torch.optim as optim
-from torchmetrics.image import TotalVariation
+#from torchmetrics.image import TotalVariation
 
 class CharbonnierLoss(torch.nn.Module):
     def __init__(self, epsilon=1e-3):
@@ -27,7 +27,8 @@ def prepare_loss(loss):
     if loss == 'charbonnier':
         criterion = CharbonnierLoss()
     elif loss == 'total_variation':
-        criterion = TotalVariation()
+        #criterion = TotalVariation()
+        pass
     else:
         print("Wrong loss type given. Accepted inputs: charbonnier, total_variation")
         criterion = None
@@ -121,7 +122,7 @@ def prepare_preprocessor(preprocessing_name, preprocessing_size):
         transform = None
     return transform
 
-def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
+def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size, device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
     prepare_folders(model_name, preprocessing_name, dataset_name, output_path, loss)
     states_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/training_states/"
     states = os.listdir(states_path)
@@ -143,6 +144,7 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
         model_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/model_checkpoints/{model_name}_model_epoch_{highest_epoch}.pth"
         model = prepare_model(model_name)
         model.load_state_dict(torch.load(model_path, weights_only=True))
+        model.to(device)
 
         optimizer_name = state['optimizer']
         optimizer_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{highest_epoch}.pth"
@@ -157,6 +159,7 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
 
     else:
         model = prepare_model(model_name)
+        model.to(device)
         optimizer = prepare_optimizer(optimizer_name, model)
         state = prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, state['num_epochs'], last_epoch=state['current_epoch']-1, eta_min=1e-6)
