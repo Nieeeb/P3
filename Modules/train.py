@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--patience', type=int, default=5, help="Patience for early stopping")
     return parser.parse_args()
 
-def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path):
+def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path, args):
     model, optimizer, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
 
@@ -43,6 +43,10 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, ou
     model.to(device)
 
     # Define the loss function
+    if args.loss == 'charbonnier':
+        criterion = CharbonnierLoss()
+    if args.loss == 'total_variation':
+        criterion = TotalVariationLoss()
     criterion = nn.L1Loss()  # L1 Loss is common for image restoration tasks
 
     # Number of epochs to train

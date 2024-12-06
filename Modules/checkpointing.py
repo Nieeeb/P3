@@ -25,7 +25,8 @@ def prepare_default_state(model_name, optimizer_name, preprocessing_name, prepro
             'best_val_loss': 100,
             'epochs_without_improvement': 0,
             'patience': 10,
-            'output_path': output_path
+            'output_path': output_path,
+            'loss' : 
         }
     return state
 
