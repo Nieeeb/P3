@@ -77,7 +77,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
             # print(outputs)
             # Compute loss
             loss = criterion(outputs, targets)
-            print(loss)
+
             # Backward pass and optimize
             loss.backward()
             optimizer.step()
