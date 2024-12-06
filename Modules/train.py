@@ -2,20 +2,25 @@ import os
 import sys
 root_dir = os.getcwd()
 sys.path.append(root_dir)
-from Models.model_zoo.CAN import CANModel
 import torch
 import torch.nn as nn
-import torch.optim as optim
-import math
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader
 from torch.utils.data import DataLoader
-from Modules.Preprocessing.preprocessing import preprocessing_pipeline_example, crop_flip_pipeline, cropping_only_pipeline, random_crop_and_flip_pipeline
 from tqdm import tqdm
 from checkpointing import load_latest_checkpoint, save_model, prepare_preprocessor
+import wandb
+import argparse
 
-def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path):
-    model, optimizer, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path)
+def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path):
+    model, optimizer, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
+
+    wandb.login()
+
+    wandb.init(
+        project="CLARITY",
+        config=state
+    )
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
@@ -29,6 +34,15 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, ou
     num_epochs = state['num_epochs']
     starting_epoch = state['current_epoch']
     save_interval = state['save_interval']
+
+
+    if state['dataset'] == 'LowLightLensFlare':
+        train_dataset = LolDatasetLoader(flare=False, transform=transform, LowLightLensFlare=True)
+        train_loader = DataLoader(dataset=train_dataset, batch_size=8, shuffle=False)
+
+        val_dataset = LolValidationDatasetLoader(flare=True, transform=transform, LowLightLensFlare=True)
+        val_loader = DataLoader(dataset=val_dataset, batch_size=8)
+
 
     train_dataset = LolDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(dataset=train_dataset, batch_size=2)
@@ -95,6 +109,8 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, ou
         avg_val_loss = val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
 
+        wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss})
+
 
         #EARLY DROPOUT
         if avg_val_loss < best_val_loss:
@@ -125,5 +141,6 @@ if __name__ == "__main__":
     optimizer = 'Adam'
     preprocessing_name = 'crop_only'
     preprocessing_size = 512
+    dataset_name = 'wtf is this shit'
     output_path = 'Outputs/'
-    train(model, optimizer, preprocessing_name, preprocessing_size, output_path)
+    train(model, optimizer, preprocessing_name, preprocessing_size, dataset_name, output_path)

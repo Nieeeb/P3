@@ -12,12 +12,13 @@ from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeli
 import torch
 import torch.optim as optim
 
-def prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path):
+def prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path):
     state = {
             'model': model_name,
             'optimizer': optimizer_name,
             'preprocessing_name': preprocessing_name,
             'preprocessing_size': preprocessing_size,
+            'dataset': dataset_name,
             'current_epoch': 0,
             'num_epochs': 1000,
             'save_interval': 10,
@@ -28,8 +29,8 @@ def prepare_default_state(model_name, optimizer_name, preprocessing_name, prepro
         }
     return state
 
-def prepare_folders(model_name, preprocessing_name, output_path):
-    model_path = output_path + model_name + '_' + preprocessing_name
+def prepare_folders(model_name, preprocessing_name, dataset_name, output_path):
+    model_path = output_path + model_name + '_' + preprocessing_name + '_' + dataset_name
 
     expected_folders = [output_path, model_path,
                         model_path + '/model_checkpoints/',
@@ -47,7 +48,7 @@ def prepare_model(model_name):
     elif model_name == 'UNet':
         model = U_Net(img_ch=3, output_ch=3)
     elif model_name == 'CAN':
-        model = CANModel(input_channels=3, out_channels=3, conv_channels=3, num_blocks=1)
+        model = CANModel(input_channels=3, out_channels=3, conv_channels=3, num_blocks=8)
     else:
         print("Wrong model type given. Accepted inputs: MIRNet, UNet, CAN")
         model = None
@@ -75,9 +76,9 @@ def prepare_preprocessor(preprocessing_name, preprocessing_size):
         transform = None
     return transform
 
-def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path):
-    prepare_folders(model_name, preprocessing_name, output_path)
-    states_path = f"{output_path}{model_name}_{preprocessing_name}/training_states/"
+def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path):
+    prepare_folders(model_name, preprocessing_name, dataset_name, output_path)
+    states_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/training_states/"
     states = os.listdir(states_path)
 
     if len(states) >= 1:
@@ -89,24 +90,24 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
             if epoch >= highest_epoch:
                 highest_epoch = epoch
                 current_state = state
-        state_path = f"{output_path}{model_name}_{preprocessing_name}/training_states/{current_state}"
+        state_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/training_states/{current_state}"
         state = torch.load(state_path, weights_only=False)
-        prepare_folders(model_name, preprocessing_name, output_path)
+        prepare_folders(model_name, preprocessing_name, dataset_name, output_path)
 
         model_name = state['model']
-        model_path = f"{output_path}{model_name}_{preprocessing_name}/model_checkpoints/{model_name}_model_epoch_{highest_epoch}.pth"
+        model_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/model_checkpoints/{model_name}_model_epoch_{highest_epoch}.pth"
         model = prepare_model(model_name)
         model.load_state_dict(torch.load(model_path, weights_only=True))
 
         optimizer_name = state['optimizer']
-        optimizer_path = f"{output_path}{model_name}_{preprocessing_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{highest_epoch}.pth"
+        optimizer_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{highest_epoch}.pth"
         optimizer = prepare_optimizer(optimizer_name, model)
         optimizer.load_state_dict(torch.load(optimizer_path, weights_only=True))
 
     else:
         model = prepare_model(model_name)
         optimizer = prepare_optimizer(optimizer_name, model)
-        state = prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, output_path)
+        state = prepare_default_state(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path)
     
     return model, optimizer, state
 
@@ -117,21 +118,23 @@ def save_model(model, optimizer, state):
     optimizer_name = state['optimizer']
     preprocessing_name = state['preprocessing_name']
     preprocessing_size = state['preprocessing_size']
-    prepare_folders(model_name, preprocessing_name, output_path)
+    dataset_name = state['dataset']
+    prepare_folders(model_name, preprocessing_name, dataset_name, output_path)
     
-    model_save_path = f"{output_path}{model_name}_{preprocessing_name}/model_checkpoints/{model_name}_model_epoch_{current_epoch}.pth"
+    model_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/model_checkpoints/{model_name}_model_epoch_{current_epoch}.pth"
     torch.save(model.state_dict(), model_save_path)
-    optimizer_save_path = f"{output_path}{model_name}_{preprocessing_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{current_epoch}.pth"
+    optimizer_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{current_epoch}.pth"
     torch.save(optimizer.state_dict(), optimizer_save_path)
-    state_save_path = f"{output_path}{model_name}_{preprocessing_name}/training_states/{model_name}_state_epoch_{current_epoch}.pth"
+    state_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}/training_states/{model_name}_state_epoch_{current_epoch}.pth"
     torch.save(state, state_save_path)
 
 if __name__ == "__main__":
-    state = prepare_default_state('MIRNet', 'Adam', 'crop_only', 512, 'Outputs/')
+    state = prepare_default_state('MIRNet', 'Adam', 'crop_only', 512, 'wtf is this shit', 'Outputs/')
     model = MIRNet_v2(inp_channels=3, out_channels=3)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     save_model(model, optimizer, state)
     preprocessing_name = 'crop_only'
     preprocessing_size = 512
-    model, optimizer, state = load_latest_checkpoint('MIRNet', 'Adam', preprocessing_name, preprocessing_size, 'Outputs/')
+    dataset_name = 'wtf is this shit'
+    model, optimizer, state = load_latest_checkpoint('MIRNet', 'Adam', preprocessing_name, preprocessing_size, dataset_name, 'Outputs/')

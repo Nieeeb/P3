@@ -28,45 +28,107 @@ def identical_transform(transform, input, target):
     return input_trans, target_trans
 
 
+def get_images(dir, included_extenstions):
+    files = []
+    for d in dir:
+        input_images = [os.path.join(d, file) for file in os.listdir(d) if any(file.endswith(ext) for ext in included_extenstions)]
+        files.extend(input_images)
+    return files
+        
+
 class LolDatasetLoader(Dataset):
-    def __init__(self, flare: bool, transform = None):
+    def __init__(self, flare: bool, LowLightLensFlare: bool, LensFlareLowLight: bool, transform = None):
+        self.LowLightLensFlare = LowLightLensFlare
+        self.LensFlareLowLight = LensFlareLowLight
         self.flare = flare
-        inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
-        targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
-        self.set_dirs(input_dirs=inputs_dirs, target_dirs=targets_dirs)
+        self.inputs = []
+        self.targets = []
+        # self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+        # self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+        # self.set_dirs(input_dirs=self.inputs_dirs, target_dirs=self.targets_dirs)
         self.transform = transform
         self.collect_images()
 
     def collect_images(self):
         included_extenstions = ['png']
 
+        if self.LensFlareLowLight:
+            lens_flare_imgs_input = []
+            self.inputs_dirs = [r"Data/Flare7Kpp/test_data/synthetic/input", r"Data/Flare7Kpp/test_data/real/input"]
+            lens_flare_imgs_input.extend(get_images(self.inputs_dirs, included_extenstions))
+            lens_flare_imgs_input.sort()
+            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+            self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
+            self.inputs.sort()
+            lens_flare_imgs_input.extend(self.inputs)
+
+            self.inputs = lens_flare_imgs_input
+
+
+            lens_flare_imgs_target = []
+
+            self.targets_dirs = [r"Data/Flare7Kpp/test_data/synthetic/gt", r"Data/Flare7Kpp/test_data/real/gt"]
+            lens_flare_imgs_target.extend(get_images(self.targets_dirs, included_extenstions))
+            lens_flare_imgs_target.sort()
+            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+            self.targets.extend(get_images(self.targets_dirs, included_extenstions))
+            self.targets.sort()
+            lens_flare_imgs_target.extend(self.targets)
+
+            self.targets = lens_flare_imgs_target
+
+
+
+        if self.LowLightLensFlare:
+            lens_flare_imgs_input = []
+
+            self.inputs_dirs = [r"Data/Flare7Kpp/test_data/synthetic/input", r"Data/Flare7Kpp/test_data/real/input"]
+            lens_flare_imgs_input.extend(get_images(self.inputs_dirs, included_extenstions))
+            lens_flare_imgs_input.sort()
+            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+            self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
+            self.inputs.sort()
+            self.inputs.extend(lens_flare_imgs_input)
+
+
+            lens_flare_imgs_target = []
+
+
+            self.targets_dirs = [r"Data/Flare7Kpp/test_data/synthetic/gt", r"Data/Flare7Kpp/test_data/real/gt"]
+            lens_flare_imgs_target.extend(get_images(self.targets_dirs, included_extenstions))
+            lens_flare_imgs_target.sort()
+            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+            self.targets.extend(get_images(self.targets_dirs, included_extenstions))
+            self.targets.sort()
+            self.targets.extend(lens_flare_imgs_target)
+
+
         if self.flare:
+            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
             scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
             self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
             self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
-        
-        self.inputs = []
-        for input_dir in self.inputs_dirs:
-            input_images = [os.path.join(input_dir, file) for file in os.listdir(input_dir) if any(file.endswith(ext) for ext in included_extenstions)]
-            self.inputs.extend(input_images)
 
-        self.targets = []
-        for target_dir in self.targets_dirs:
-            target_images = [os.path.join(target_dir, file) for file in os.listdir(target_dir) if any(file.endswith(ext) for ext in included_extenstions)]
-            self.targets.extend(target_images)
+            self.inputs = []
+            self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
+            self.targets = []
+            self.targets.extend(get_images(self.targets_dirs, included_extenstions))
+   
 
-    def set_dirs(self, input_dirs, target_dirs):
-        self.inputs_dirs = input_dirs
-        self.targets_dirs = target_dirs
+    # def set_dirs(self, input_dirs, target_dirs):
+    #     self.inputs_dirs = input_dirs
+    #     self.targets_dirs = target_dirs
 
     def __len__(self): # find docs: https://pytorch.org/tutorials/beginner/basics/data_tutorial.html -- 'Creating a Custom Dataset for your files'
         return len(self.inputs)
     
     def __getitem__(self, idx):
-
         input_path = self.inputs[idx]
         target_path = self.targets[idx]
         input_image = Image.open(input_path)
+        if not self.flare:
+            input_image = F.to_tensor(input_image)
         target_image = Image.open(target_path)
         target_image = F.to_tensor(target_image)
 
@@ -86,32 +148,37 @@ class LolDatasetLoader(Dataset):
 class LolTestDatasetLoader(LolDatasetLoader):
     def __init__(self, flare: bool, transform = None):
         self.flare = flare
-        inputs_dirs = [r'Data/LOLdataset/eval15/low', r"Data/LOL-v2/Real_captured/Test/Low"]
-        targets_dirs = [r'Data/LOLdataset/eval15/high', r"Data/LOL-v2/Real_captured/Test/Normal"]
-        self.set_dirs(input_dirs=inputs_dirs, target_dirs=targets_dirs)
+        self.inputs = []
+        self.targets = []
+        self.inputs_dirs = [r'Data/LOLdataset/eval15/low', r"Data/LOL-v2/Real_captured/Test/Low"]
+        self.targets_dirs = [r'Data/LOLdataset/eval15/high', r"Data/LOL-v2/Real_captured/Test/Normal"]
         self.transform = transform
         self.collect_images()
 
 class LolValidationDatasetLoader(LolDatasetLoader):
     def __init__(self, flare: bool, transform = None):
         self.flare = flare
-        inputs_dirs = [r"Data/LOL-v2/Synthetic/Test/Low"]
-        targets_dirs = [r"Data/LOL-v2/Synthetic/Test/Normal"]
-        self.set_dirs(input_dirs=inputs_dirs, target_dirs=targets_dirs)
+        self.inputs = []
+        self.targets = []
+        self.inputs_dirs = [r"Data/LOL-v2/Synthetic/Test/Low"]
+        self.targets_dirs = [r"Data/LOL-v2/Synthetic/Test/Normal"]
         self.transform = transform
         self.collect_images()
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    l = LolDatasetLoader(flare=True, transform=transform)
-    train_loader = DataLoader(l, batch_size=1)
+    #l = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
+    l = LolValidationDatasetLoader(flare=True, transform=transform)
+    train_loader = DataLoader(l, batch_size=1, shuffle=False)
+    i = 0 
     for input, target in train_loader:
-        print(input.shape)
-        print(target.shape)
+        i += 1
         input = input.squeeze(0)
         target = target.squeeze(0)
         input_image = input.permute(1, 2, 0).detach().cpu().numpy()
         target_image = target.permute(1, 2, 0).detach().cpu().numpy()
+
+        # if i >= 2070:
         plt.imshow(input_image)
         plt.show()
         plt.imshow(target_image)

@@ -23,7 +23,7 @@ class FixedHeightResize:
     def __call__(self, img):
         w = img.shape[2]
         h = img.shape[3]
-        aspect_ratio = float(h) / float(w)
+        aspect_ratio = float(w) / float(h)
         new_w = math.ceil(self.size / aspect_ratio)
         return F.resize(img, (self.size, new_w), antialias=True)
         
@@ -70,7 +70,7 @@ def resize_pipeline(size):
     transform = T.Compose([
         T.ToImage(),
         #FixedHeightResize(size),
-        T.Resize(size),
+        T.Resize((size, size)),
     ])
     return transform
 

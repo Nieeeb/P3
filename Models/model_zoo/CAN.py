@@ -25,9 +25,10 @@ class CANModel(nn.Module):
     def __init__(self, input_channels, conv_channels, out_channels, num_blocks):
         super(CANModel, self).__init__()
         self.input_conv = nn.Conv2d(input_channels, conv_channels, kernel_size=1, bias=False)
+        dilation_rates = [1, 2, 4, 8, 16, 32, 64, 1]
         self.blocks = nn.ModuleList([
-            CANBlock(conv_channels, conv_channels, kernel_size=3, dilation=2 ** i)
-            for i in range(num_blocks)
+            CANBlock(conv_channels, conv_channels, kernel_size=3, dilation=rate)
+            for rate in dilation_rates
         ])
         self.output_conv = nn.Conv2d(conv_channels, out_channels, kernel_size=1, bias=False)
 
