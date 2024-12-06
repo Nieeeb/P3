@@ -1,0 +1,16 @@
+{"time":"2024-12-06T14:56:36.4629958+01:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-06T14:56:36.4629958+01:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\wandb\\run-20241206_145636-ljtt5bq1\\logs\\debug-core.log"}
+{"time":"2024-12-06T14:56:36.5857246+01:00","level":"INFO","msg":"created new stream","id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:36.5857246+01:00","level":"INFO","msg":"stream: started","id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:36.5857246+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:36.5857246+01:00","level":"INFO","msg":"handler: started","stream_id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:36.5857246+01:00","level":"INFO","msg":"sender: started","stream_id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:36.9379322+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-06T14:56:57.2197063+01:00","level":"INFO","msg":"stream: closing","id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:57.2197063+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-06T14:56:57.2203401+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-06T14:56:58.3453195+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-06T14:56:58.5870976+01:00","level":"INFO","msg":"handler: closed","stream_id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:58.5870976+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:58.5870976+01:00","level":"INFO","msg":"sender: closed","stream_id":"ljtt5bq1"}
+{"time":"2024-12-06T14:56:58.5876019+01:00","level":"INFO","msg":"stream: closed","id":"ljtt5bq1"}

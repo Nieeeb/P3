@@ -15,12 +15,12 @@ import torch.optim as optim
 from torchmetrics.image import TotalVariation
 
 class CharbonnierLoss(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, epsilon=1e-3):
         super(CharbonnierLoss, self).__init__()
+        self.epsilon = epsilon
     
     def forward(self, output, target):
-        epsilon=1e-3
-        return torch.mean(torch.sqrt((target - output) + epsilon**2))
+        return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
 
 def prepare_loss(loss):
     # Define the loss function

@@ -1,0 +1,11 @@
+Using device: cpu
+Traceback (most recent call last):
+  File "c:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\train.py", line 163, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "c:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\train.py", line 34, in train
+    criterion = prepare_loss(loss_function)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Modules\checkpointing.py", line 30, in prepare_loss
+    criterion = CharbonnierLoss()
+                ^^^^^^^^^^^^^^^^^
+TypeError: CharbonnierLoss.__init__() missing 2 required positional arguments: 'output' and 'target'
