@@ -1,0 +1,8 @@
+{"time":"2024-12-06T16:17:18.2554675+01:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-06T16:17:18.2559915+01:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\Victor Steinrud\\Documents\\DAKI\\3. semester\\P3\\wandb\\run-20241206_161718-c4pg21kk\\logs\\debug-core.log"}
+{"time":"2024-12-06T16:17:18.3796506+01:00","level":"INFO","msg":"created new stream","id":"c4pg21kk"}
+{"time":"2024-12-06T16:17:18.3796506+01:00","level":"INFO","msg":"stream: started","id":"c4pg21kk"}
+{"time":"2024-12-06T16:17:18.3817676+01:00","level":"INFO","msg":"handler: started","stream_id":"c4pg21kk"}
+{"time":"2024-12-06T16:17:18.3821732+01:00","level":"INFO","msg":"sender: started","stream_id":"c4pg21kk"}
+{"time":"2024-12-06T16:17:18.3821732+01:00","level":"INFO","msg":"writer: Do: started","stream_id":"c4pg21kk"}
+{"time":"2024-12-06T16:17:18.8924718+01:00","level":"INFO","msg":"Starting system monitor"}

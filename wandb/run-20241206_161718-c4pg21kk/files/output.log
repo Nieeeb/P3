@@ -1,0 +1,6 @@
+Loaded state:
+ {'model': 'MIRNet', 'optimizer': 'Adam', 'preprocessing_name': 'resize', 'preprocessing_size': 512, 'dataset': 'Mixed', 'current_epoch': 0, 'num_epochs': 1000, 'save_interval': 10, 'best_val_loss': 100, 'epochs_without_improvement': 0, 'patience': 10, 'output_path': 'Outputs/', 'loss': 'charbonnier', 'batch_size': 4, 'scheduler': 'CosineAnnealing'}
+Using device: cpu
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Starting training for epoch 0
