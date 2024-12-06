@@ -150,25 +150,39 @@ class LolTestDatasetLoader(LolDatasetLoader):
         self.flare = flare
         self.inputs = []
         self.targets = []
+        self.LensFlareLowLight = False
+        self.LowLightLensFlare = False
         self.inputs_dirs = [r'Data/LOLdataset/eval15/low', r"Data/LOL-v2/Real_captured/Test/Low"]
         self.targets_dirs = [r'Data/LOLdataset/eval15/high', r"Data/LOL-v2/Real_captured/Test/Normal"]
         self.transform = transform
-        self.collect_images()
+        scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
+        self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
+        self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
+        included_extenstions = ['png']
+        self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
+        self.targets.extend(get_images(self.targets_dirs, included_extenstions))
 
 class LolValidationDatasetLoader(LolDatasetLoader):
     def __init__(self, flare: bool, transform = None):
         self.flare = flare
         self.inputs = []
         self.targets = []
+        self.LensFlareLowLight = False
+        self.LowLightLensFlare = False
         self.inputs_dirs = [r"Data/LOL-v2/Synthetic/Test/Low"]
         self.targets_dirs = [r"Data/LOL-v2/Synthetic/Test/Normal"]
         self.transform = transform
-        self.collect_images()
+        scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
+        self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
+        self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
+        included_extenstions = ['png']
+        self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
+        self.targets.extend(get_images(self.targets_dirs, included_extenstions))
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
     #l = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
-    l = LolValidationDatasetLoader(flare=True, transform=transform)
+    l = LolTestDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(l, batch_size=1, shuffle=False)
     i = 0 
     for input, target in train_loader:
