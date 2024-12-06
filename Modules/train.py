@@ -15,20 +15,20 @@ import wandb
 import argparse
 
 def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
-    model, optimizer, scheduler, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    model, optimizer, scheduler, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size, device)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
-
+    test_name = f"{state['model']}_{state['preprocessing_name']}_{state['dataset']}_{state['current_epoch']}"
     wandb.login()
 
     wandb.init(
         project="CLARITY",
-        config=state
+        config=state,
+        name=test_name
     )
 
     print("Loaded state:\n", state)
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
 
     model.to(device)
 
@@ -143,12 +143,11 @@ def parse_args():
     parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation'], default='charbonnier', help="Loss function")
     parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN'], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
-    parser.add_argument('--batch_size', type=int, default=4, help="Batch size")
+    parser.add_argument('--batch_size', type=int, default=8, help="Batch size")
     parser.add_argument('--preprocessing_name', type=str, choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip'], default='resize', help="How to augment images")
     parser.add_argument('--preprocessing_size', type=int, default=512, help="Desired input size")
     parser.add_argument('--optimizer', type=str, choices=['Adam'], default='Adam', help="What optimizer to use")
     parser.add_argument('--scheduler', type=str, choices=['CosineAnnealing'], default='CosineAnnealing', help="Learning rate scheduler")
-    parser.add_argument('--min_lr', type=float, default=1e-6, help="Minimum learning rate for the scheduler")
     parser.add_argument('--num_workers', type=int, default=4, help="Number of workers for DataLoader")
     parser.add_argument('--patience', type=int, default=10, help="Patience for early stopping")
     parser.add_argument('--dataset', type=str, choices=['Mixed', 'LowLightLensFlare', 'LensFlareLowLight'], default='Mixed', help="What data to train on")
