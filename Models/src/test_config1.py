@@ -22,7 +22,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 # Initialize the model and load the saved state dictionary
-model = CANModel(input_channels=, out_channels=)
+model = CANModel(input_channels=3, out_channels=3)
 model.load_state_dict(torch.load(MODEL.pth, map_location=device))
 model.eval()  # Set model to evaluation mode
 

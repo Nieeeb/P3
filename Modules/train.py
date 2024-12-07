@@ -13,19 +13,18 @@ from tqdm import tqdm
 from checkpointing import load_latest_checkpoint, save_model, prepare_preprocessor, prepare_loss, prepare_dataset
 import wandb
 import argparse
+import random
 
 def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     model, optimizer, scheduler, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size, device)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
-    test_name = f"{state['model']}_{state['preprocessing_name']}_{state['dataset']}_{state['current_epoch']}"
     wandb.login()
 
     wandb.init(
         project="CLARITY",
         config=state,
-        name=test_name
     )
 
     print("Loaded state:\n", state)
@@ -141,7 +140,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
     parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation'], default='charbonnier', help="Loss function")
-    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN'], default='UNet', help="What model to train")
+    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet"], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")
     parser.add_argument('--preprocessing_name', type=str, choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip'], default='resize', help="How to augment images")

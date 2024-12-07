@@ -6,6 +6,7 @@ sys.path.append(root_dir)
 from Models.model_zoo.CAN import CANModel
 from Models.model_zoo.mirnet_v2_arch import MIRNet_v2
 from Models.model_zoo.U_Net import U_Net
+from Models.model_zoo.CIDNet import CIDNet
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader, LolTestDatasetLoader
 
 from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
@@ -94,6 +95,8 @@ def prepare_model(model_name):
         model = U_Net(img_ch=3, output_ch=3)
     elif model_name == 'CAN':
         model = CANModel(input_channels=3, out_channels=3, conv_channels=3, num_blocks=8)
+    elif model_name == "CIDNet":
+        model = CIDNet()
     else:
         print("Wrong model type given. Accepted inputs: MIRNet, UNet, CAN")
         model = None
