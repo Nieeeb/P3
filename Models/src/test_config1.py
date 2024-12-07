@@ -12,7 +12,7 @@ sys.path.append(root_dir)
 
 # Import the U_Net model class
 from Models.model_zoo.U_Net import U_Net
-
+from Models.model_zoo.CAN import CANModel
 # Import the test dataset loader and any required preprocessing pipelines
 from CLARITY_dataloader import LolTestDatasetLoader
 from Modules.Preprocessing.preprocessing import crop_flip_pipeline
@@ -22,8 +22,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 # Initialize the model and load the saved state dictionary
-model = U_Net(img_ch=3, output_ch=3).to(device)
-model.load_state_dict(torch.load(r'C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\model_final.pth', map_location=device))
+model = CANModel(input_channels=, out_channels=)
+model.load_state_dict(torch.load(MODEL.pth, map_location=device))
 model.eval()  # Set model to evaluation mode
 
 # Load the test dataset
