@@ -84,19 +84,19 @@ modeldicts = []
 
 # Initialize the model and load the saved state dictionary
 canmodel = prepare_model("CAN")
-canmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
+canmodel.load_state_dict(torch.load(r'C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\CAN_model_epoch_19.pth', map_location=device))
 candict = {'model': canmodel, 'modelname': 'CAN'}
 modeldicts.append(candict)
 
-unetmodel = prepare_model("UNet")
-unetmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
-unetdict = {'model': unetmodel, 'modelname': 'unet'}
-modeldicts.append(unetdict)
+# unetmodel = prepare_model("UNet")
+# unetmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
+# unetdict = {'model': unetmodel, 'modelname': 'unet'}
+# modeldicts.append(unetdict)
 
-cidmodel = prepare_model("UNet")
-cidmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
-ciddict = {'model': cidmodel, 'modelname': 'cidnet'}
-modeldicts.append(ciddict)
+# cidmodel = prepare_model("UNet")
+# cidmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
+# ciddict = {'model': cidmodel, 'modelname': 'cidnet'}
+# modeldicts.append(ciddict)
 
 
 # Load the test dataset

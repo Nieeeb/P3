@@ -30,7 +30,7 @@ model.to(device)
 model.eval()  # Set model to evaluation mode
 
 # Load the test dataset
-test_dataset = LolValidationDatasetLoader(flare=True, transform=resize_pipeline(512))
+test_dataset = LolTestDatasetLoader(flare=True, transform=resize_pipeline(512))
 test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
 
 # Define the loss function for evaluation
