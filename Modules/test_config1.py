@@ -24,8 +24,8 @@ print(f"Using device: {device}")
 
 # Initialize the model and load the saved state dictionary
 #model = CANModel(input_channels=3, out_channels=3, conv_channels=3, num_blocks=8)
-model = prepare_model('UNet')
-model.load_state_dict(torch.load('Outputs/UNet_model_epoch_13.pth'))
+model = prepare_model('CAN')
+model.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\CAN_model_epoch_19.pth", map_location=torch.device('cpu')))
 model.to(device)
 model.eval()  # Set model to evaluation mode
 
