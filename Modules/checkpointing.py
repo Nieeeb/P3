@@ -59,7 +59,7 @@ def prepare_default_state(model_name, optimizer_name, preprocessing_name, prepro
             'save_interval': 10,
             'best_val_loss': 100,
             'epochs_without_improvement': 0,
-            'patience': 10,
+            'patience': 50,
             'output_path': output_path,
             'loss': loss,
             'batch_size': batch_size,
