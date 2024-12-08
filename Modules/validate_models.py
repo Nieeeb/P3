@@ -18,14 +18,15 @@ from Models.src.CLARITY_dataloader import LolTestDatasetLoader, LolValidationDat
 from Modules.Preprocessing.preprocessing import crop_flip_pipeline, resize_pipeline
 from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
-from Modules.checkpointing import prepare_model
+from Modules.checkpointing import prepare_model, load_latest_checkpoint
+import pickle
 #import lpips
 
 # Set device to GPU if available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
-def validate_model(modeldict):
+def validate_model(modeldict, test_loader):
     model = modeldict['model']
     model.eval()
     # Lists to store metric values
@@ -73,37 +74,45 @@ def validate_model(modeldict):
     # After the loop, compute the average of each metric
     mean_ssim = np.mean(ssim_values)
     mean_psnr = np.mean(psnr_values)
-    mean_lpips = np.mean(lpips_values)
-
+    #mean_lpips = np.mean(lpips_values)
+    print('---------------------------------------------------------------------------')
+    print(f"Results for: {modeldict['modelname']}")
     print(f"Average SSIM: {mean_ssim:.4f}")
     print(f"Average PSNR: {mean_psnr:.4f} dB")
-    print(f"Average LPIPS: {mean_lpips:.4f}")
+    print(f"State:\n{modeldict['state']}")
+    #print(f"Average LPIPS: {mean_lpips:.4f}")
+    print('---------------------------------------------------------------------------')
 
+
+datasets = ['Mixed']
+
+augmentations = ['crop_flip', 'resize', 'crop_only']
+
+model_names = ['UNet', 'CAN', 'CIDNet']
 
 modeldicts = []
 
-# Initialize the model and load the saved state dictionary
-canmodel = prepare_model("CAN")
-canmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
-candict = {'model': canmodel, 'modelname': 'CAN'}
-modeldicts.append(candict)
-
-unetmodel = prepare_model("UNet")
-unetmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
-unetdict = {'model': unetmodel, 'modelname': 'unet'}
-modeldicts.append(unetdict)
-
-cidmodel = prepare_model("UNet")
-cidmodel.load_state_dict(torch.load(r'/ceph/project/CLARITY/Outputs/CAN_resize_Mixed_charbonnier/model_checkpoints/CAN_model_epoch_19.pth', map_location=device))
-ciddict = {'model': cidmodel, 'modelname': 'cidnet'}
-modeldicts.append(ciddict)
-
+for dataset in datasets:
+    for augemntation in augmentations:
+        for model_name in model_names:
+            model, _, _, state = load_latest_checkpoint(model_name=model_name,
+                                           optimizer_name='Adam',
+                                           preprocessing_name=augemntation,
+                                           preprocessing_size=512,
+                                           dataset_name=dataset,
+                                           output_path='Outputs/Models/',
+                                           loss='charbonnier',
+                                           batch_size=1,
+                                           device=device)
+            model_name = f"{model_name}_{augemntation}_{dataset}"
+            model_dict = {'model': model, 'modelname': model_name, 'state': state}
+            modeldicts.append(model_dict)
 
 # Load the test dataset
 test_dataset = LolValidationDatasetLoader(flare=True, transform=resize_pipeline(512))
 test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
 
 for modeldict in modeldicts:
-    validate_model(modeldict)
+    validate_model(modeldict, test_loader)
 
 #lpips_fn = lpips.LPIPS(net='alex').to(device)
