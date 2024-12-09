@@ -100,8 +100,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                 targets = targets.to(device)
 
                 # Forward pass
-                outputs = model(inputs)
-
+                outputs = model(inputs) 
                 # Compute loss
                 loss = criterion(outputs, targets)
                 val_loss += loss.item()

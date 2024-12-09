@@ -125,4 +125,10 @@ class U_Net(nn.Module):
 
         d1 = self.Conv_1x1(d2)
         d1 = self.activation(d1)
-        return d1
+
+        output = d1 + x
+
+        print(d1.shape)
+        print(x.shape)
+        print(output.shape)
+        return output
