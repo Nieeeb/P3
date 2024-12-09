@@ -22,29 +22,31 @@ from Modules.checkpointing import prepare_model, load_latest_checkpoint, prepare
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
-datasets = ['Mixed']
+def generate_model_dicts():
+    datasets = ['Mixed']
 
-augmentations = ['crop_flip', 'resize', 'crop_only']
+    augmentations = ['crop_flip', 'resize', 'crop_only']
 
-model_names = ['UNet', 'CAN', 'CIDNet']
+    model_names = ['UNet', 'CAN', 'CIDNet']
 
-modeldicts = []
+    modeldicts = []
 
-for dataset in datasets:
-    for augemntation in augmentations:
-        for model_name in model_names:
-            model, _, _, state = load_latest_checkpoint(model_name=model_name,
-                                           optimizer_name='Adam',
-                                           preprocessing_name=augemntation,
-                                           preprocessing_size=512,
-                                           dataset_name=dataset,
-                                           output_path='Outputs/Models/',
-                                           loss='charbonnier',
-                                           batch_size=1,
-                                           device=device)
-            model_name = f"{model_name}_{augemntation}_{dataset}"
-            model_dict = {'model': model, 'modelname': model_name, 'state': state, 'transform': augemntation}
-            modeldicts.append(model_dict)
+    for dataset in datasets:
+        for augemntation in augmentations:
+            for model_name in model_names:
+                model, _, _, state = load_latest_checkpoint(model_name=model_name,
+                                            optimizer_name='Adam',
+                                            preprocessing_name=augemntation,
+                                            preprocessing_size=512,
+                                            dataset_name=dataset,
+                                            output_path='Outputs/Models/',
+                                            loss='charbonnier',
+                                            batch_size=1,
+                                            device=device)
+                model_name = f"{model_name}_{augemntation}_{dataset}"
+                model_dict = {'model': model, 'modelname': model_name, 'state': state, 'transform': augemntation}
+                modeldicts.append(model_dict)
+    return modeldicts
 
 def generate_image(modeldict, input, target):
     # Testing loop
@@ -64,6 +66,8 @@ def generate_image(modeldict, input, target):
         input_image = input.cpu().squeeze(0).permute(1, 2, 0).numpy()
         output_image = outputs.cpu().squeeze(0).permute(1, 2, 0).numpy()
         target_image = target.cpu().squeeze(0).permute(1, 2, 0).numpy()
+
+        output_image = input_image + output_image
 
         # Clip values to [0, 1] if necessary
         input_image = np.clip(input_image, 0, 1)
@@ -89,6 +93,7 @@ def generate_image(modeldict, input, target):
         plt.savefig(f"Outputs/ValidationImages/{modeldict['modelname']}.jpg")
         #plt.imsave(f"Outputs/ValidationImages/{modeldict['modelname']}.jpg", axs)
 
+modeldicts = generate_model_dicts()
 
 for modeldict in modeldicts:
     tranform = prepare_preprocessor(modeldict['transform'], 512)

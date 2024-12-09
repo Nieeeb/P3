@@ -1,0 +1,44 @@
+Loaded state:
+ {'model': 'UNet', 'optimizer': 'Adam', 'preprocessing_name': 'resize', 'preprocessing_size': 512, 'dataset': 'Mixed', 'current_epoch': 0, 'num_epochs': 1000, 'save_interval': 10, 'best_val_loss': 100, 'epochs_without_improvement': 0, 'patience': 50, 'output_path': 'Outputs/', 'loss': 'charbonnier', 'batch_size': 8, 'scheduler': 'CosineAnnealing'}
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Starting training for epoch 0
+Traceback (most recent call last):
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 166, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 64, in train
+    for batch_idx, (inputs, targets) in enumerate(train_loader):
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 701, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 757, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 52, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 52, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+            ~~~~~~~~~~~~^^^^^
+  File "/home/nieb/Projects/DAKI Projects/P3/Models/src/CLARITY_dataloader.py", line 136, in __getitem__
+    _,_,input_image,_,flare=self.flare_image_loader.apply_flare(input_image)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/Projects/DAKI Projects/P3/Models/src/APPLY_FLARE_TO_IMG.py", line 165, in apply_flare
+    flare_img=blur_transform(flare_img)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torchvision/transforms/transforms.py", line 1812, in forward
+    return F.gaussian_blur(img, self.kernel_size, [sigma, sigma])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torchvision/transforms/functional.py", line 1380, in gaussian_blur
+    output = F_t.gaussian_blur(t_img, kernel_size, sigma)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torchvision/transforms/_functional_tensor.py", line 761, in gaussian_blur
+    img = conv2d(img, kernel, groups=img.shape[-3])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
