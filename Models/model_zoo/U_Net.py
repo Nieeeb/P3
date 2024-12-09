@@ -128,7 +128,4 @@ class U_Net(nn.Module):
 
         output = d1 + x
 
-        print(d1.shape)
-        print(x.shape)
-        print(output.shape)
         return output
