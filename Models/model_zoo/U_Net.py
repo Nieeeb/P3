@@ -62,9 +62,10 @@ class U_Net(nn.Module):
         self.Up_conv2 = conv_block(ch_in=128, ch_out=64)
 
         self.Conv_1x1 = nn.Conv2d(64,output_ch,kernel_size=1,stride=1,padding=0)
-        self.activation=nn.Sequential(nn.Sigmoid())
+        # self.activation=nn.Sequential(nn.Sigmoid())
         #init_weights(self)
         self.apply(self._init_weights)
+
 
 
     def _init_weights(self,m):
@@ -123,9 +124,7 @@ class U_Net(nn.Module):
         d2 = torch.cat((x1,d2),dim=1)
         d2 = self.Up_conv2(d2)
 
-        d1 = self.Conv_1x1(d2)
-        d1 = self.activation(d1)
+        
+        d1 = self.Conv_1x1(d2) + x
 
-        output = d1 + x
-
-        return output
+        return d1
