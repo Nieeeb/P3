@@ -20,8 +20,24 @@ class CharbonnierLoss(torch.nn.Module):
         super(CharbonnierLoss, self).__init__()
         self.epsilon = epsilon
     
-    def forward(self, output, target):
-        return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+    def forward(self, output, target, light_pos):
+        if light_pos is not None:
+            non_flare_loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+            rect_size = 150
+            x1 = int(max(light_pos[0] - rect_size / 2, 0))
+            x2 = int(min(light_pos[0] + rect_size / 2, 512))
+            y1 = int(max(light_pos[1] - rect_size / 2, 0))
+            y2 = int(min(light_pos[1] + rect_size / 2, 512))
+            output = output.squeeze(0).permute(1, 2, 0)
+            target = target.squeeze(0).permute(1, 2, 0)
+            output = output[y1:y2, x1:x2 :]
+            target = target[y1:y2, x1:x2 :]
+
+            flare_loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+            return flare_loss + non_flare_loss
+        else:
+            return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+
 
 def prepare_loss(loss):
     # Define the loss function
