@@ -14,6 +14,42 @@ from checkpointing import load_latest_checkpoint, save_model, prepare_preprocess
 import wandb
 import argparse
 import random
+import numpy as np
+from scipy import ndimage
+from skimage.morphology import disk
+from skimage.measure import regionprops, label
+
+
+def plot_light_pos(input_img,threshold):
+	#input should be a three channel tensor with shape [C,H,W]
+	#Out put the position (x,y) in int
+	luminance=0.3*input_img[0]+0.59*input_img[1]+0.11*input_img[2] # her beregner den luminance af billedet baseret på luminance equation som har vægte for hvor meget mennesker ser hver farve
+	luminance_mask=luminance>threshold # Den her sat et threshold og for pixel der overskrider der laver den en luminance mask
+	luminance_mask_np=luminance_mask.numpy() # Den gør masken til numpy
+	struc = disk(3) #
+	img_e = ndimage.binary_erosion(luminance_mask_np, structure = struc)
+	img_ed = ndimage.binary_dilation(img_e, structure = struc)
+
+
+	labels = label(img_ed)
+
+	if labels.max() == 0:
+		# print("Light source not found.")
+		x = random.randint(-(input_img.shape[2] // 2), input_img.shape[2] // 2)
+		y = random.randint(-(input_img.shape[0] // 2), input_img.shape[0] // 2)
+
+		return (x, y)
+	else:
+		largestCC = labels == np.argmax(np.bincount(labels.flat)[1:])+1
+		largestCC=largestCC.astype(int)
+		properties = regionprops(largestCC, largestCC)
+		weighted_center_of_mass = properties[0].weighted_centroid
+		print("Light source detected in position: x:",int(weighted_center_of_mass[1]),",y:",int(weighted_center_of_mass[0]))
+		light_pos = (int(weighted_center_of_mass[1]),int(weighted_center_of_mass[0]))
+		light_pos=[light_pos[0]-256,light_pos[1]-256]
+
+		return light_pos
+
 
 def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

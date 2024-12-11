@@ -39,8 +39,8 @@ def generate_model_dicts():
                                             preprocessing_name=augemntation,
                                             preprocessing_size=512,
                                             dataset_name=dataset,
-                                            output_path='Outputs/Models/',
-                                            loss='charbonnier',
+                                            output_path=r'C:\Users\Victor Steinrud\Documents\DAKI\3. semester',
+                                            loss='L1',
                                             batch_size=1,
                                             device=device)
                 model_name = f"{model_name}_{augemntation}_{dataset}"
