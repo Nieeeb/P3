@@ -111,7 +111,8 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
         axs[2].set_title('Target Image')
         axs[2].axis('off')
 
-        plt.savefig(f"Outputs/overfitting/beforebeef.jpg")
+        plt.savefig(f"Outputs/overfitting/image.jpg")
+        plt.close()
 
         # Optionally save the model checkpoint
         # torch.save(model.state_dict(), f"uformer_epoch_{epoch+1}.pth")
@@ -144,6 +145,6 @@ if __name__ == "__main__":
     preprocessing_size = args.preprocessing_size
     dataset_name = args.dataset
     output_path = "Outputs/overfitting/"
-    loss = 'charbonnier'
+    loss = 'L1'
     batch_size = 1
     train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)

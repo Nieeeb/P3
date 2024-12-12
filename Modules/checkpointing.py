@@ -6,11 +6,12 @@ sys.path.append(root_dir)
 from Models.model_zoo.CAN import CANModel
 from Models.model_zoo.mirnet_v2_arch import MIRNet_v2
 from Models.model_zoo.U_Net import U_Net
+from Models.model_zoo.U_Net_no_skip import U_Net_no_skip
 from Models.model_zoo.CIDNet import CIDNet
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader, LolTestDatasetLoader
 from Models.src.seperate_datasets import SeperateDatasets, SeperateDatasetsValidation
 
-from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
+from Modules.Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
 from torch import nn
 import torch
 import torch.optim as optim
@@ -74,11 +75,11 @@ def prepare_default_state(model_name, optimizer_name, preprocessing_name, prepro
             'preprocessing_size': preprocessing_size,
             'dataset': dataset_name,
             'current_epoch': 0,
-            'num_epochs': 100,
+            'num_epochs': 50,
             'save_interval': 5,
             'best_val_loss': 100,
             'epochs_without_improvement': 0,
-            'patience': 100,
+            'patience': 50,
             'output_path': output_path,
             'loss': loss,
             'batch_size': batch_size,
@@ -112,12 +113,14 @@ def prepare_model(model_name):
         model = MIRNet_v2(inp_channels=3, out_channels=3)
     elif model_name == 'UNet':
         model = U_Net(img_ch=3, output_ch=3)
+    elif model_name == 'UNetNoSkip':
+        model = U_Net_no_skip(img_ch=3, output_ch=3)
     elif model_name == 'CAN':
         model = CANModel(input_channels=3, out_channels=3, conv_channels=3, num_blocks=8)
     elif model_name == "CIDNet":
         model = CIDNet()
     else:
-        print("Wrong model type given. Accepted inputs: MIRNet, UNet, CAN")
+        print("Wrong model type given. Accepted inputs: MIRNet, UNet, CAN, UNetNoSkip")
         model = None
     model.apply(init_weights)
     return model

@@ -11,43 +11,60 @@
     # Before and after?
     # Performance metrics before and after? PSNR etc.
 
-from fastapi import FastAPI, File, UploadFile
+import os
+import sys
+root_dir = os.getcwd()
+sys.path.append(root_dir)
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.testclient import TestClient
-from Modules.Deployment.modelexample import get_model, apply_model
+from Modules.Deployment.helpers import process_image, get_model
 from typing import Annotated
+from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+import requests
+from PIL import Image
 
 # Create app object 
 app = FastAPI()
 
-model, preprocess = get_model()
-
-
+model, augmentation = get_model()
 
 # API Endpoints
 @app.get('/')
 def index():
     return {'Hello': 'Welcome to low light model, access the api docs and test the API at http://0.0.0.0:8000/docs#/.'}
 
-@app.post("/files/")
-async def create_file(file: Annotated[bytes, File()]):
-    return {"file_size": len(file)}
+@app.post("/enhance")
+def upload(file: UploadFile = File(...)):
+    try:
+        path = f"Modules/Deployment/{file.filename}"
+        contents = file.file.read()
+        with open(path, 'wb') as f:
+            f.write(contents)
+        input = Image.open(path)
+        process_image(input, model, augmentation)
+        save_path = f"{path}_processed.png"
+        plt.savefig(save_path)
+        plt.close()
 
-async def create_upload_file(file: UploadFile):
-    return {"filename": file.filename}
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=e)
+    finally:
+        file.file.close()
 
-@app.post('/enhance')
-def perform_enhancement():
-    image = create_file()
-    output = apply_model(image)
-    return FileResponse(output)
+    return FileResponse(save_path)
 
-def main():
+def main():    
     client = TestClient(app)
     respone = client.get("/")
     print(respone)
-    response = client.get("/enhance")
-    print(response)
+    url = 'http://127.0.0.1:8000/enhance'
+    file = {'file': open('Outputs/testdeploy/r0a3c52a0t.png', 'rb')}
+    resp = requests.post(url=url, files=file) 
+    print(type(respone))
 
 if __name__ == "__main__":
     main()
