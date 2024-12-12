@@ -8,6 +8,7 @@ from Models.model_zoo.mirnet_v2_arch import MIRNet_v2
 from Models.model_zoo.U_Net import U_Net
 from Models.model_zoo.CIDNet import CIDNet
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader, LolTestDatasetLoader
+from Models.src.seperate_datasets import SeperateDatasets, SeperateDatasetsValidation
 
 from Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
 from torch import nn
@@ -54,14 +55,14 @@ def prepare_loss(loss):
     return criterion
 
 def prepare_dataset(dataset_name, transform):
-    if dataset_name == 'LowLightLensFlare':
-        dataset = LolDatasetLoader(flare=False, LowLightLensFlare=True, LensFlareLowLight=False, transform=transform)
-    elif dataset_name == 'LensFlareLowLight':
-        dataset = LolDatasetLoader(flare=False, LowLightLensFlare=False, LensFlareLowLight=True, transform=transform)
+    if dataset_name == 'LensFlare':
+        dataset = SeperateDatasets(dataset_name='LensFlare', transform=transform)
+    elif dataset_name == 'LowLight':
+        dataset = SeperateDatasets(dataset_name='LowLight', transform=transform)
     elif dataset_name == 'Mixed':
         dataset = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
     else:
-        print("Wrong dataset type given. Accepted inputs: LowLightLensFlare, LensFlareLowLight, Mixed")
+        print("Wrong dataset type given. Accepted inputs: LowLight, LensFlare, Mixed")
         dataset = None
     return dataset
 
@@ -73,11 +74,11 @@ def prepare_default_state(model_name, optimizer_name, preprocessing_name, prepro
             'preprocessing_size': preprocessing_size,
             'dataset': dataset_name,
             'current_epoch': 0,
-            'num_epochs': 1000,
-            'save_interval': 10,
+            'num_epochs': 100,
+            'save_interval': 5,
             'best_val_loss': 100,
             'epochs_without_improvement': 0,
-            'patience': 50,
+            'patience': 100,
             'output_path': output_path,
             'loss': loss,
             'batch_size': batch_size,

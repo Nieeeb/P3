@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader, Dataset
 import matplotlib.pyplot as plt
 import torchvision.transforms.v2 as T
 from Modules.Preprocessing.preprocessing import resize_pipeline
+import re
 
 
 class SeperateDatasets(Dataset):
@@ -30,8 +31,8 @@ class SeperateDatasets(Dataset):
 
     def collect_images(self):
         if self.dataset == 'LensFlare':
-            self.input_dirs = [r'Data/LOLdataset/our485/low', r'Data/LOLdataset/our485/high', r"Data\Flare7Kpp\test_data\synthetic\input"]
-            self.target_dirs = [r'Data/LOLdataset/our485/low', r'Data/LOLdataset/our485/high', r"Data\Flare7Kpp\test_data\synthetic\gt"]
+            self.input_dirs = [r'Data/LOLdataset/our485/low', r'Data/LOLdataset/our485/high', r"Data/Flare7Kpp/test_data/synthetic/input"]
+            self.target_dirs = [r'Data/LOLdataset/our485/low', r'Data/LOLdataset/our485/high', r"Data/Flare7Kpp/test_data/synthetic/gt"]
             scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
             self.flare_image_loader = Flare_Image_Loader(transform_base=None,transform_flare=None)
             self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
@@ -42,6 +43,10 @@ class SeperateDatasets(Dataset):
 
         self.inputs.extend(self.get_images(self.input_dirs, self.included_extenstions))
         self.targets.extend(self.get_images(self.target_dirs, self.included_extenstions))
+
+        if self.dataset == 'LensFlare':
+            self.inputs = sorted(self.inputs)
+            self.targets = sorted(self.targets)
             
     def __len__(self): 
         return len(self.inputs)
@@ -85,19 +90,40 @@ class SeperateDatasetsValidation(SeperateDatasets):
 
     def collect_images(self):
         if self.dataset == 'LensFlare':
-            self.input_dirs = [r"Data\How to Train Neural Networks for Flare Removal Dataset\real\input"]
-            self.target_dirs = [r"Data\How to Train Neural Networks for Flare Removal Dataset\real\ground_truth"]
+            self.input_dirs = [r"Data/How to Train Neural Networks for Flare Removal Dataset/real/input"]
+            self.target_dirs = [r"Data/How to Train Neural Networks for Flare Removal Dataset/real/ground_truth"]
 
         if self.dataset == 'LowLight':
-            self.input_dirs = [r'Data\LOL-v2\Real_captured\Train\Low']
-            self.target_dirs = [r"Data\LOL-v2\Real_captured\Train\Normal"]
+            self.input_dirs = [r'Data/LOL-v2/Real_captured/Train/Low']
+            self.target_dirs = [r"Data/LOL-v2/Real_captured/Train/Normal"]
 
         self.inputs.extend(self.get_images(self.input_dirs, self.included_extenstions))
         self.targets.extend(self.get_images(self.target_dirs, self.included_extenstions))
 
+def check_sorted(inputs, targets, input_dirs, target_dirs):
+    file_inputs = []
+    file_targets = []
+    for input_dir in input_dirs:
+        for input in inputs:
+            if input_dir in input:
+                file_input = re.sub(input_dir, "", input)
+                file_inputs.append(file_input)
+
+    for target_dir in target_dirs:
+        for target in targets:
+            if target_dir in target:
+                file_target = re.sub(target_dir, "", target)
+                file_targets.append(file_target)
+
+    for index, _ in enumerate(file_inputs):
+        if file_inputs[index] != file_targets[index]:
+            print(f"Match error: {file_inputs[index]} - {file_targets[index]}")
+
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    dataset = SeperateDatasets(dataset_name='LowLight', transform=transform)
+    dataset = SeperateDatasets(dataset_name='LensFlare', transform=transform)
+    check_sorted(dataset.inputs, dataset.targets, dataset.input_dirs, dataset.target_dirs)
+    #print(dataset.inputs)
     train_loader = DataLoader(dataset, batch_size=1, shuffle=False)
     i = 0 
     for input, target in train_loader:

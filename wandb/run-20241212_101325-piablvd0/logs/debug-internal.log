@@ -1,0 +1,16 @@
+{"time":"2024-12-12T10:13:25.512015878+01:00","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2024-12-12T10:13:25.512044622+01:00","level":"INFO","msg":"created symlink","path":"/home/nieb/Projects/DAKI Projects/P3/wandb/run-20241212_101325-piablvd0/logs/debug-core.log"}
+{"time":"2024-12-12T10:13:25.616664356+01:00","level":"INFO","msg":"created new stream","id":"piablvd0"}
+{"time":"2024-12-12T10:13:25.616712778+01:00","level":"INFO","msg":"stream: started","id":"piablvd0"}
+{"time":"2024-12-12T10:13:25.616808297+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"piablvd0"}}
+{"time":"2024-12-12T10:13:25.617075389+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"piablvd0"}}
+{"time":"2024-12-12T10:13:25.617099895+01:00","level":"INFO","msg":"sender: started","stream_id":"piablvd0"}
+{"time":"2024-12-12T10:13:25.926797041+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-12T10:13:27.349157001+01:00","level":"INFO","msg":"stream: closing","id":"piablvd0"}
+{"time":"2024-12-12T10:13:27.349201104+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-12T10:13:27.349833914+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-12T10:13:29.829831924+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-12T10:13:30.076523767+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"piablvd0"}}
+{"time":"2024-12-12T10:13:30.076577208+01:00","level":"INFO","msg":"sender: closed","stream_id":"piablvd0"}
+{"time":"2024-12-12T10:13:30.07655191+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"piablvd0"}}
+{"time":"2024-12-12T10:13:30.076654634+01:00","level":"INFO","msg":"stream: closed","id":"piablvd0"}

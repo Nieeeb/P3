@@ -113,7 +113,7 @@ class LolDatasetLoader(Dataset):
             self.targets.extend(get_images(self.targets_dirs, included_extenstions))
    
     def __len__(self): 
-        return 1
+        return len(self.inputs)
     
     def __getitem__(self, idx):
         input_path = self.inputs[idx]

@@ -5,3 +5,4 @@ Outputs/UNet_model_epoch_13.pth
 Outputs/overfitting/UNet_resize_Mixed_L1/training_states/UNet_state_epoch_99.pth
 Outputs/Models
 Outputs/overfitting/
+container

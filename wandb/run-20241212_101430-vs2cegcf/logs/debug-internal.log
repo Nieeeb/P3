@@ -1,0 +1,16 @@
+{"time":"2024-12-12T10:14:30.687626626+01:00","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2024-12-12T10:14:30.687644319+01:00","level":"INFO","msg":"created symlink","path":"/home/nieb/Projects/DAKI Projects/P3/wandb/run-20241212_101430-vs2cegcf/logs/debug-core.log"}
+{"time":"2024-12-12T10:14:30.790365767+01:00","level":"INFO","msg":"created new stream","id":"vs2cegcf"}
+{"time":"2024-12-12T10:14:30.790407725+01:00","level":"INFO","msg":"stream: started","id":"vs2cegcf"}
+{"time":"2024-12-12T10:14:30.790456447+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"vs2cegcf"}}
+{"time":"2024-12-12T10:14:30.790445547+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"vs2cegcf"}}
+{"time":"2024-12-12T10:14:30.790593344+01:00","level":"INFO","msg":"sender: started","stream_id":"vs2cegcf"}
+{"time":"2024-12-12T10:14:31.102163862+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-12T10:14:32.117129607+01:00","level":"INFO","msg":"stream: closing","id":"vs2cegcf"}
+{"time":"2024-12-12T10:14:32.117179581+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-12T10:14:32.118057351+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-12T10:14:33.020583643+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-12T10:14:33.27581819+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"vs2cegcf"}}
+{"time":"2024-12-12T10:14:33.275886398+01:00","level":"INFO","msg":"sender: closed","stream_id":"vs2cegcf"}
+{"time":"2024-12-12T10:14:33.27587143+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"vs2cegcf"}}
+{"time":"2024-12-12T10:14:33.276028906+01:00","level":"INFO","msg":"stream: closed","id":"vs2cegcf"}

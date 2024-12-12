@@ -1,0 +1,15 @@
+Loaded state:
+ {'model': 'UNet', 'optimizer': 'Adam', 'preprocessing_name': 'resize', 'preprocessing_size': 512, 'dataset': 'Mixed', 'current_epoch': 0, 'num_epochs': 1000, 'save_interval': 10, 'best_val_loss': 100, 'epochs_without_improvement': 0, 'patience': 50, 'output_path': 'Outputs/', 'loss': 'L1', 'batch_size': 8, 'scheduler': 'CosineAnnealing'}
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Starting training for epoch 0
+Traceback (most recent call last):
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 242, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 119, in train
+    light_pos = plot_light_pos(inputs, threshold=0.9)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 33, in plot_light_pos
+    luminance_mask_np=luminance_mask.numpy() # Den gør masken til numpy
+                      ^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't convert cuda:0 device type tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first.

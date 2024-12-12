@@ -8,6 +8,7 @@ import torch.optim as optim
 import math
 import argparse
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader
+from Models.src.seperate_datasets import SeperateDatasets, SeperateDatasetsValidation
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from checkpointing import load_latest_checkpoint, save_model, prepare_preprocessor, prepare_loss, prepare_dataset
@@ -30,7 +31,7 @@ def plot_light_pos(input_img,threshold):
     input_img = input_img.squeeze(0)
     luminance=0.3*input_img[0]+0.59*input_img[1]+0.11*input_img[2] # her beregner den luminance af billedet baseret på luminance equation som har vægte for hvor meget mennesker ser hver farve
     luminance_mask=luminance>threshold # Den her sat et threshold og for pixel der overskrider der laver den en luminance mask
-    luminance_mask_np=luminance_mask.numpy() # Den gør masken til numpy
+    luminance_mask_np=luminance_mask.cpu().numpy() # Den gør masken til numpy
     struc = disk(3) #
     img_e = ndimage.binary_erosion(luminance_mask_np, structure = struc)
     img_ed = ndimage.binary_dilation(img_e, structure = struc)
@@ -42,7 +43,7 @@ def plot_light_pos(input_img,threshold):
     labels = label(img_ed)
 
     if labels.max() == 0:
-        print('Could not find light source')
+        #print('Could not find light source')
         return None
 
     else:
@@ -62,12 +63,12 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     print(f"Using device: {device}")
     model, optimizer, scheduler, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size, device)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
-    wandb.login()
+    #wandb.login()
 
-    wandb.init(
-        project="CLARITY",
-        config=state,
-    )
+    #wandb.init(
+    #    project="CLARITY",
+    #    config=state,
+    #)
 
     print("Loaded state:\n", state)
 
@@ -84,9 +85,13 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     dataset_name = state['dataset']
     batch_size = state['batch_size']
     train_dataset = prepare_dataset(dataset_name, transform)
-    train_loader = DataLoader(dataset=train_dataset, batch_size=1, shuffle=False)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
 
-    val_dataset = LolValidationDatasetLoader(flare=True, transform=transform)
+    if dataset_name == 'Mixed':
+        val_dataset = LolValidationDatasetLoader(flare=True, transform=transform)
+    else:
+        val_dataset = SeperateDatasetsValidation(dataset_name=dataset_name, transform=transform)
+    
     val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size)
 
     patience = state['patience']
@@ -115,8 +120,10 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
             # Forward pass
             outputs = model(inputs)
             # print(outputs)
-
-            light_pos = plot_light_pos(inputs, threshold=0.9) 
+            if loss_function == 'charbonnier':
+                light_pos = plot_light_pos(inputs, threshold=0.9) 
+            else:
+                light_pos = None
             '''
             if light_pos is not None:
                 rect_size = 150
@@ -150,7 +157,12 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                 plt.show()
             '''
             # Compute loss
-            loss = criterion(outputs, targets, light_pos)
+            if loss_function == 'charbonnier':
+                loss = criterion(outputs, targets, light_pos)
+            else:
+                loss = criterion(outputs, targets)
+
+            #wandb.log({"Training Loss": loss})
 
             # Backward pass and optimize
             loss.backward()
@@ -172,20 +184,28 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
         val_loss = 0.0
         with torch.no_grad():  # Disable gradient computation
             for inputs, targets in val_loader:
-                
+                if loss_function == 'charbonnier':
+                    light_pos = plot_light_pos(inputs, threshold=0.9)
+                else:
+                    light_pos = None
+
                 inputs = inputs.to(device)
                 targets = targets.to(device)
 
                 # Forward pass
                 outputs = model(inputs) 
-                # Compute loss
-                loss = criterion(outputs, targets)
+
+                if loss_function == 'charbonnier':
+                    loss = criterion(outputs, targets, light_pos)
+                else:
+                    loss = criterion(outputs, targets)
+
                 val_loss += loss.item()
 
         avg_val_loss = val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
         scheduler.step()
-        wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss, 'lr': scheduler.get_last_lr()})
+        #wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss, 'lr': scheduler.get_last_lr()})
 
 
         #EARLY DROPOUT
@@ -210,13 +230,13 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
             save_model(model, optimizer, scheduler, state)
         # Optionally save the model checkpoint
         # torch.save(model.state_dict(), f"uformer_epoch_{epoch+1}.pth")
-
+    save_model(model, optimizer, scheduler, state)
     print("Training completed.")
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
     parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation', 'L1'], default='L1', help="Loss function")
-    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet"], default='UNet', help="What model to train")
+    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet", "UnetNoSkip"], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")
     parser.add_argument('--preprocessing_name', type=str, choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip'], default='resize', help="How to augment images")
@@ -225,7 +245,7 @@ def parse_args():
     parser.add_argument('--scheduler', type=str, choices=['CosineAnnealing'], default='CosineAnnealing', help="Learning rate scheduler")
     parser.add_argument('--num_workers', type=int, default=4, help="Number of workers for DataLoader")
     parser.add_argument('--patience', type=int, default=10, help="Patience for early stopping")
-    parser.add_argument('--dataset', type=str, choices=['Mixed', 'LowLightLensFlare', 'LensFlareLowLight'], default='Mixed', help="What data to train on")
+    parser.add_argument('--dataset', type=str, choices=['Mixed', "LensFlare", "LowLight"], default='Mixed', help="What data to train on")
     parser.add_argument('--output_path', type=str, default='Outputs/', help="Where to output checkpoints")
     return parser.parse_args()
 
