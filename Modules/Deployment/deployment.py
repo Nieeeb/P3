@@ -64,7 +64,7 @@ def main():
     url = 'http://127.0.0.1:8000/enhance'
     file = {'file': open('Outputs/testdeploy/r0a3c52a0t.png', 'rb')}
     resp = requests.post(url=url, files=file) 
-    print(type(respone))
+    print(resp)
 
 if __name__ == "__main__":
     main()
