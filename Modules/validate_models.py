@@ -59,7 +59,7 @@ def validate_model(modeldict, test_loader):
             outputs = outputs.numpy()
             targets = targets.numpy()
 
-            #outputs = outputs + targets
+            outputs = outputs + targets
             #print(targets)
             # Compute SSIM
             #print(target_np.shape)
