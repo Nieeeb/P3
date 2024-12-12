@@ -33,8 +33,9 @@ class CANModel(nn.Module):
         self.output_conv = nn.Conv2d(conv_channels, out_channels, kernel_size=1, bias=False)
 
     def forward(self, x):
-        x = self.input_conv(x)
+        o = self.input_conv(x)
         for block in self.blocks:
-            x = block(x)
-        x = self.output_conv(x)
+            o = block(o)
+        o = self.output_conv(o)
+        x = o + x
         return x

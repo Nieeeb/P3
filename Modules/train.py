@@ -14,6 +14,48 @@ from checkpointing import load_latest_checkpoint, save_model, prepare_preprocess
 import wandb
 import argparse
 import random
+import numpy as np
+from scipy import ndimage
+from skimage.morphology import disk
+from skimage.measure import regionprops, label
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+
+
+def plot_light_pos(input_img,threshold):
+	#input should be a three channel tensor with shape [C,H,W]
+	#Out put the position (x,y) in int
+     
+    input_img = input_img.squeeze(0)
+    luminance=0.3*input_img[0]+0.59*input_img[1]+0.11*input_img[2] # her beregner den luminance af billedet baseret på luminance equation som har vægte for hvor meget mennesker ser hver farve
+    luminance_mask=luminance>threshold # Den her sat et threshold og for pixel der overskrider der laver den en luminance mask
+    luminance_mask_np=luminance_mask.numpy() # Den gør masken til numpy
+    struc = disk(3) #
+    img_e = ndimage.binary_erosion(luminance_mask_np, structure = struc)
+    img_ed = ndimage.binary_dilation(img_e, structure = struc)
+
+    # print(type(img_ed))
+    # print(img_ed.sum())
+
+ 
+    labels = label(img_ed)
+
+    if labels.max() == 0:
+        print('Could not find light source')
+        return None
+
+    else:
+        largestCC = labels == np.argmax(np.bincount(labels.flat)[1:])+1
+        largestCC=largestCC.astype(int)
+        properties = regionprops(largestCC, largestCC)
+        weighted_center_of_mass = properties[0].weighted_centroid
+        # print("Light source detected in position: x:",int(weighted_center_of_mass[1]),",y:",int(weighted_center_of_mass[0]))
+        light_pos = (int(weighted_center_of_mass[1]),int(weighted_center_of_mass[0]))
+        light_pos=[light_pos[0],light_pos[1]]
+
+        return light_pos
+
 
 def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -42,7 +84,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     dataset_name = state['dataset']
     batch_size = state['batch_size']
     train_dataset = prepare_dataset(dataset_name, transform)
-    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=1, shuffle=False)
 
     val_dataset = LolValidationDatasetLoader(flare=True, transform=transform)
     val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size)
@@ -52,6 +94,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     best_val_loss = state['best_val_loss']
 
     epochs_without_improvement = state['epochs_without_improvement']
+    num_epochs = 1
 
     # Training loop
     for epoch in range(starting_epoch, num_epochs):
@@ -61,8 +104,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
         state['current_epoch'] = epoch
 
-        for batch_idx, (inputs, targets) in enumerate(train_loader):
-            # print(inputs.shape)
+        for batch_idx, (inputs, targets) in enumerate(train_loader):        
             # Move data to the appropriate device (CPU or GPU)
             inputs = inputs.to(device)
             targets = targets.to(device)
@@ -73,8 +115,43 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
             # Forward pass
             outputs = model(inputs)
             # print(outputs)
+
+            light_pos = plot_light_pos(inputs, threshold=0.9) 
+            '''
+            if light_pos is not None:
+                rect_size = 150
+
+                x1 = int(max(light_pos[0] - rect_size / 2, 0))
+                x2 = int(min(light_pos[0] + rect_size / 2, 512))
+                y1 = int(max(light_pos[1] - rect_size / 2, 0))
+                y2 = int(min(light_pos[1] + rect_size / 2, 512))
+                inputs = inputs.squeeze(0).permute(1, 2, 0)
+                outputs = outputs.squeeze(0).permute(1, 2, 0)
+                targets = targets.squeeze(0).permute(1, 2, 0)
+                outputs = outputs[y1:y2, x1:x2 :]
+                target = targets[y1:y2, x1:x2 :]
+
+                # inputs = inputs.squeeze(0).permute(1, 2, 0)
+                fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+                axs[0].imshow(inputs)
+                axs[0].set_title('Input Image')
+                axs[0].axis('off')
+
+                # target = target.squeeze(0).permute(1, 2, 0)
+                axs[1].imshow(target)
+                axs[1].set_title('Sliced Target Image')
+                axs[1].axis('off')
+                
+                rect_size = 150
+                rect = patches.Rectangle((light_pos[0] - rect_size / 2, light_pos[1] - rect_size / 2), rect_size, rect_size, linewidth=1, edgecolor='r', facecolor='none')
+
+                # Add the patch to the Axes
+                axs[0].add_patch(rect)
+                plt.show()
+            '''
             # Compute loss
-            loss = criterion(outputs, targets)
+            loss = criterion(outputs, targets, light_pos)
+            wandb.log({'Training Loss': loss})
 
             # Backward pass and optimize
             loss.backward()
@@ -96,12 +173,12 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
         val_loss = 0.0
         with torch.no_grad():  # Disable gradient computation
             for inputs, targets in val_loader:
+                
                 inputs = inputs.to(device)
                 targets = targets.to(device)
 
                 # Forward pass
-                outputs = model(inputs)
-
+                outputs = model(inputs) 
                 # Compute loss
                 loss = criterion(outputs, targets)
                 val_loss += loss.item()
@@ -139,7 +216,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
-    parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation'], default='charbonnier', help="Loss function")
+    parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation', 'L1'], default='L1', help="Loss function")
     parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet"], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")

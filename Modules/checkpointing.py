@@ -20,8 +20,24 @@ class CharbonnierLoss(torch.nn.Module):
         super(CharbonnierLoss, self).__init__()
         self.epsilon = epsilon
     
-    def forward(self, output, target):
-        return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+    def forward(self, output, target, light_pos):
+        if light_pos is not None:
+            non_flare_loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+            rect_size = 150
+            x1 = int(max(light_pos[0] - rect_size / 2, 0))
+            x2 = int(min(light_pos[0] + rect_size / 2, 512))
+            y1 = int(max(light_pos[1] - rect_size / 2, 0))
+            y2 = int(min(light_pos[1] + rect_size / 2, 512))
+            output = output.squeeze(0).permute(1, 2, 0)
+            target = target.squeeze(0).permute(1, 2, 0)
+            output = output[y1:y2, x1:x2 :]
+            target = target[y1:y2, x1:x2 :]
+
+            flare_loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+            return flare_loss + non_flare_loss
+        else:
+            return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+
 
 def prepare_loss(loss):
     # Define the loss function
@@ -30,8 +46,10 @@ def prepare_loss(loss):
     elif loss == 'total_variation':
         #criterion = TotalVariation()
         pass
+    elif loss == 'L1':
+        criterion = nn.L1Loss()
     else:
-        print("Wrong loss type given. Accepted inputs: charbonnier, total_variation")
+        print("Wrong loss type given. Accepted inputs: charbonnier, total_variation, L1")
         criterion = None
     return criterion
 
@@ -146,13 +164,13 @@ def load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, prepr
         model_name = state['model']
         model_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/model_checkpoints/{model_name}_model_epoch_{highest_epoch}.pth"
         model = prepare_model(model_name)
-        model.load_state_dict(torch.load(model_path, weights_only=True))
+        model.load_state_dict(torch.load(model_path, weights_only=False))
         model.to(device)
 
         optimizer_name = state['optimizer']
         optimizer_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/optimizer_checkpoints/{model_name}_{optimizer_name}_optimizer_epoch_{highest_epoch}.pth"
         optimizer = prepare_optimizer(optimizer_name, model)
-        optimizer.load_state_dict(torch.load(optimizer_path, weights_only=True))
+        optimizer.load_state_dict(torch.load(optimizer_path, weights_only=False))
 
         scheduler_name = state['scheduler']
         scheduler_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss}/scheduler_checkpoints/{model_name}_{scheduler_name}_optimizer_epoch_{highest_epoch}.pth"

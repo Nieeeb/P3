@@ -43,9 +43,6 @@ class LolDatasetLoader(Dataset):
         self.flare = flare
         self.inputs = []
         self.targets = []
-        # self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
-        # self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
-        # self.set_dirs(input_dirs=self.inputs_dirs, target_dirs=self.targets_dirs)
         self.transform = transform
         self.collect_images()
 
@@ -115,13 +112,8 @@ class LolDatasetLoader(Dataset):
             self.targets = []
             self.targets.extend(get_images(self.targets_dirs, included_extenstions))
    
-
-    # def set_dirs(self, input_dirs, target_dirs):
-    #     self.inputs_dirs = input_dirs
-    #     self.targets_dirs = target_dirs
-
-    def __len__(self): # find docs: https://pytorch.org/tutorials/beginner/basics/data_tutorial.html -- 'Creating a Custom Dataset for your files'
-        return len(self.inputs)
+    def __len__(self): 
+        return 1
     
     def __getitem__(self, idx):
         input_path = self.inputs[idx]
@@ -181,8 +173,8 @@ class LolValidationDatasetLoader(LolDatasetLoader):
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    #l = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
-    l = LolTestDatasetLoader(flare=True, transform=transform)
+    l = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
+    # l = LolTestDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(l, batch_size=1, shuffle=False)
     i = 0 
     for input, target in train_loader:

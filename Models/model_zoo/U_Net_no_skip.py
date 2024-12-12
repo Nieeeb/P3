@@ -37,9 +37,9 @@ class up_conv(nn.Module):
         return x
 
 
-class U_Net(nn.Module):
+class U_Net_no_skip(nn.Module):
     def __init__(self,img_ch=1,output_ch=2,multi_stage=False):
-        super(U_Net,self).__init__()
+        super(U_Net_no_skip,self).__init__()
         
         self.Maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
 
@@ -125,6 +125,6 @@ class U_Net(nn.Module):
         d2 = self.Up_conv2(d2)
 
         
-        d1 = self.Conv_1x1(d2) + x
+        d1 = self.Conv_1x1(d2) #+ x
 
         return d1

@@ -1,0 +1,49 @@
+Loaded state:
+ {'model': 'UNet', 'optimizer': 'Adam', 'preprocessing_name': 'resize', 'preprocessing_size': 512, 'dataset': 'Mixed', 'current_epoch': 0, 'num_epochs': 1000, 'save_interval': 10, 'best_val_loss': 100, 'epochs_without_improvement': 0, 'patience': 50, 'output_path': 'Outputs/ovefitting/', 'loss': 'L1', 'batch_size': 8, 'scheduler': 'CosineAnnealing'}
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Scattering Flare Image: Flare7K  is loaded successfully with  5000  flares
+Starting training for epoch 0
+Traceback (most recent call last):
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 169, in <module>
+    train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)
+  File "/home/nieb/Projects/DAKI Projects/P3/Modules/train.py", line 76, in train
+    outputs = model(inputs)
+              ^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/Projects/DAKI Projects/P3/Models/model_zoo/U_Net.py", line 94, in forward
+    x1 = self.Conv1(x)
+         ^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/Projects/DAKI Projects/P3/Models/model_zoo/U_Net.py", line 22, in forward
+    x = self.conv(x)
+        ^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/batchnorm.py", line 160, in forward
+    self._check_input_dim(input)
+  File "/home/nieb/.conda/envs/UNI/lib/python3.11/site-packages/torch/nn/modules/batchnorm.py", line 452, in _check_input_dim
+    raise ValueError(f"expected 4D input (got {input.dim()}D input)")
+ValueError: expected 4D input (got 3D input)
