@@ -45,10 +45,9 @@ class CharbonnierLoss(torch.nn.Module):
         super(CharbonnierLoss, self).__init__()
         self.epsilon = epsilon
     
-    def forward(self, output, target, light_pos):
-        if light_pos is not None:
-            loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
-            return loss
+    def forward(self, output, target):
+        loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+        return loss
 
 def prepare_loss(loss):
     # Define the loss function
