@@ -54,7 +54,7 @@ class LolDatasetLoader(Dataset):
             self.inputs_dirs = [r"Data/Flare7Kpp/test_data/synthetic/input", r"Data/Flare7Kpp/test_data/real/input"]
             lens_flare_imgs_input.extend(get_images(self.inputs_dirs, included_extenstions))
             lens_flare_imgs_input.sort()
-            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Real_captured/Train/Low"]
             self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
             self.inputs.sort()
             lens_flare_imgs_input.extend(self.inputs)
@@ -67,7 +67,7 @@ class LolDatasetLoader(Dataset):
             self.targets_dirs = [r"Data/Flare7Kpp/test_data/synthetic/gt", r"Data/Flare7Kpp/test_data/real/gt"]
             lens_flare_imgs_target.extend(get_images(self.targets_dirs, included_extenstions))
             lens_flare_imgs_target.sort()
-            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Real_captured/Train/Normal"]
             self.targets.extend(get_images(self.targets_dirs, included_extenstions))
             self.targets.sort()
             lens_flare_imgs_target.extend(self.targets)
@@ -82,7 +82,7 @@ class LolDatasetLoader(Dataset):
             self.inputs_dirs = [r"Data/Flare7Kpp/test_data/synthetic/input", r"Data/Flare7Kpp/test_data/real/input"]
             lens_flare_imgs_input.extend(get_images(self.inputs_dirs, included_extenstions))
             lens_flare_imgs_input.sort()
-            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
+            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Real_captured/Train/Low"]
             self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
             self.inputs.sort()
             self.inputs.extend(lens_flare_imgs_input)
@@ -94,15 +94,15 @@ class LolDatasetLoader(Dataset):
             self.targets_dirs = [r"Data/Flare7Kpp/test_data/synthetic/gt", r"Data/Flare7Kpp/test_data/real/gt"]
             lens_flare_imgs_target.extend(get_images(self.targets_dirs, included_extenstions))
             lens_flare_imgs_target.sort()
-            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Real_captured/Train/Normal"]
             self.targets.extend(get_images(self.targets_dirs, included_extenstions))
             self.targets.sort()
             self.targets.extend(lens_flare_imgs_target)
 
 
         if self.flare:
-            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Synthetic/Train/Low", r"Data/LOL-v2/Real_captured/Train/Low"]
-            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Synthetic/Train/Normal", r"Data/LOL-v2/Real_captured/Train/Normal"]
+            self.inputs_dirs = [r'Data/LOLdataset/our485/low']
+            self.targets_dirs = [r'Data/LOLdataset/our485/high']
             scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
             self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
             self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
@@ -161,8 +161,8 @@ class LolValidationDatasetLoader(LolDatasetLoader):
         self.targets = []
         self.LensFlareLowLight = False
         self.LowLightLensFlare = False
-        self.inputs_dirs = [r"Data/LOL-v2/Synthetic/Test/Low"]
-        self.targets_dirs = [r"Data/LOL-v2/Synthetic/Test/Normal"]
+        self.inputs_dirs = [r'Data/LOLdataset/eval15/low']
+        self.targets_dirs = [r'Data/LOLdataset/eval15/high']
         self.transform = transform
         scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
         self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
