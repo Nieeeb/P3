@@ -20,43 +20,6 @@ from scipy import ndimage
 from skimage.morphology import disk
 from skimage.measure import regionprops, label
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-
-
-
-def plot_light_pos(input_img,threshold):
-	#input should be a three channel tensor with shape [C,H,W]
-	#Out put the position (x,y) in int
-     
-    input_img = input_img.squeeze(0)
-    luminance=0.3*input_img[0]+0.59*input_img[1]+0.11*input_img[2] # her beregner den luminance af billedet baseret på luminance equation som har vægte for hvor meget mennesker ser hver farve
-    luminance_mask=luminance>threshold # Den her sat et threshold og for pixel der overskrider der laver den en luminance mask
-    luminance_mask_np=luminance_mask.cpu().numpy() # Den gør masken til numpy
-    struc = disk(3) #
-    img_e = ndimage.binary_erosion(luminance_mask_np, structure = struc)
-    img_ed = ndimage.binary_dilation(img_e, structure = struc)
-
-    # print(type(img_ed))
-    # print(img_ed.sum())
-
- 
-    labels = label(img_ed)
-
-    if labels.max() == 0:
-        #print('Could not find light source')
-        return None
-
-    else:
-        largestCC = labels == np.argmax(np.bincount(labels.flat)[1:])+1
-        largestCC=largestCC.astype(int)
-        properties = regionprops(largestCC, largestCC)
-        weighted_center_of_mass = properties[0].weighted_centroid
-        # print("Light source detected in position: x:",int(weighted_center_of_mass[1]),",y:",int(weighted_center_of_mass[0]))
-        light_pos = (int(weighted_center_of_mass[1]),int(weighted_center_of_mass[0]))
-        light_pos=[light_pos[0],light_pos[1]]
-
-        return light_pos
-
 
 def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -75,6 +38,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     model.to(device)
 
     loss_function = state['loss']
+
     criterion = prepare_loss(loss_function)
 
     # Number of epochs to train
@@ -99,7 +63,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     best_val_loss = state['best_val_loss']
 
     epochs_without_improvement = state['epochs_without_improvement']
-
+    num_epochs = 1
     # Training loop
     for epoch in range(starting_epoch, num_epochs):
         print(f"Starting training for epoch {epoch}")
@@ -118,11 +82,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
             # Forward pass
             outputs = model(inputs)
-            # print(outputs)
-            if loss_function == 'charbonnier_weighted':
-                light_pos = plot_light_pos(inputs, threshold=0.9) 
-            else:
-                light_pos = None
+
             '''
             if light_pos is not None:
                 rect_size = 150
@@ -156,13 +116,10 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                 plt.show()
             '''
             # Compute loss
-            if loss_function == 'charbonnier_weighted':
-                loss = criterion(outputs, targets, light_pos)
-            else:
-                loss = criterion(outputs, targets)
-
+            loss = criterion(outputs, targets)
+            print(loss)
             wandb.log({"Training Loss": loss})
-
+            
             # Backward pass and optimize
             loss.backward()
             optimizer.step()
@@ -178,36 +135,28 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                     f"Learning rate: {optimizer.param_groups[0]['lr']}")
                 running_loss = 0.0
 
-        save_model(model=model, optimizer=optimizer, scheduler=scheduler, state=state)
+        # save_model(model=model, optimizer=optimizer, scheduler=scheduler, state=state)
 
         # Validation loop
         model.eval()  # Set model to evaluation mode
         val_loss = 0.0
         with torch.no_grad():  # Disable gradient computation
             for inputs, targets in val_loader:
-                if loss_function == 'charbonnier_weighted':
-                    light_pos = plot_light_pos(inputs, threshold=0.9)
-                else:
-                    light_pos = None
-
                 inputs = inputs.to(device)
                 targets = targets.to(device)
 
                 # Forward pass
                 outputs = model(inputs) 
 
-                if loss_function == 'charbonnier_weighted':
-                    loss = criterion(outputs, targets, light_pos)
-                else:
-                    loss = criterion(outputs, targets)
+                loss = criterion(outputs, targets)
 
+                print(loss)
                 val_loss += loss.item()
-
+                break
         avg_val_loss = val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
         scheduler.step()
         wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss, 'lr': scheduler.get_last_lr()})
-
 
         #EARLY DROPOUT
         if avg_val_loss < best_val_loss:
@@ -236,7 +185,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
-    parser.add_argument('--loss', type=str, choices=['charbonnier', 'charbonnier_weighted', 'L1'], default='charbonnier', help="Loss function")
+    parser.add_argument('--loss', type=str, choices=['charbonnier', 'charbonnier_weighted', 'L1'], default='charbonnier_weighted', help="Loss function")
     parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet", "UnetNoSkip"], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")
@@ -260,4 +209,5 @@ if __name__ == "__main__":
     output_path = args.output_path
     loss = args.loss
     batch_size = args.batch_size
+
     train(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size)

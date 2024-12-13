@@ -10,36 +10,29 @@ from Models.model_zoo.U_Net_no_skip import U_Net_no_skip
 from Models.model_zoo.CIDNet import CIDNet
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader, LolTestDatasetLoader
 from Models.src.seperate_datasets import SeperateDatasets, SeperateDatasetsValidation
-
 from Modules.Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
 from torch import nn
 import torch
 import torch.optim as optim
+from scipy import ndimage
+from skimage.morphology import disk
+from skimage.measure import regionprops, label
+import numpy as np
+import matplotlib.pyplot as plt
 #from torchmetrics.image import TotalVariation
 
 class CharbonnierLossWeighted(torch.nn.Module):
     def __init__(self, epsilon=1e-3):
         super(CharbonnierLossWeighted, self).__init__()
         self.epsilon = epsilon
+        self.flare_gain = 0.5
     
-    def forward(self, output, target, light_pos):
-        if light_pos is not None:
-            non_flare_loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
-            rect_size = 150
-            x1 = int(max(light_pos[0] - rect_size / 2, 0))
-            x2 = int(min(light_pos[0] + rect_size / 2, 512))
-            y1 = int(max(light_pos[1] - rect_size / 2, 0))
-            y2 = int(min(light_pos[1] + rect_size / 2, 512))
-            output = output.squeeze(0).permute(1, 2, 0)
-            target = target.squeeze(0).permute(1, 2, 0)
-            output = output[y1:y2, x1:x2 :]
-            target = target[y1:y2, x1:x2 :]
-
-            flare_loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
-            return flare_loss + non_flare_loss
-        else:
-            return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
-
+    def forward(self, outputs, targets):
+        non_flare_loss = torch.mean(torch.sqrt((targets - outputs)**2 + self.epsilon**2))
+        flare_loss = calculate_flare_loss(outputs, targets, batch_size=8) 
+        flare_loss = flare_loss * self.flare_gain
+        return non_flare_loss + flare_loss
+ 
 class CharbonnierLoss(torch.nn.Module):
     def __init__(self, epsilon=1e-3):
         super(CharbonnierLoss, self).__init__()
@@ -53,7 +46,7 @@ def prepare_loss(loss):
     # Define the loss function
     if loss == 'charbonnier_weighted':
         criterion = CharbonnierLossWeighted()
-    if loss == 'charbonnier':
+    elif loss == 'charbonnier':
         criterion = CharbonnierLoss()
     elif loss == 'L1':
         criterion = nn.L1Loss()
@@ -218,6 +211,61 @@ def save_model(model, optimizer, scheduler, state):
     torch.save(state, state_save_path)
     scheduler_save_path = f"{output_path}{model_name}_{preprocessing_name}_{dataset_name}_{loss_name}/scheduler_checkpoints/{model_name}_{scheduler_name}_optimizer_epoch_{current_epoch}.pth"
     torch.save(scheduler.state_dict(), scheduler_save_path)
+
+def plot_light_pos(input_img,threshold):
+	#input should be a three channel tensor with shape [C,H,W]
+	#Out put the position (x,y) in int
+     
+    input_img = input_img.squeeze(0)
+    luminance=0.3*input_img[0]+0.59*input_img[1]+0.11*input_img[2] # her beregner den luminance af billedet baseret på luminance equation som har vægte for hvor meget mennesker ser hver farve
+    luminance_mask=luminance>threshold # Den her sat et threshold og for pixel der overskrider der laver den en luminance mask
+    luminance_mask_np=luminance_mask.cpu().numpy() # Den gør masken til numpy
+    struc = disk(3) #
+    img_e = ndimage.binary_erosion(luminance_mask_np, structure = struc)
+    img_ed = ndimage.binary_dilation(img_e, structure = struc) 
+    labels = label(img_ed)
+
+    if labels.max() == 0:
+        return None
+
+    else:
+        largestCC = labels == np.argmax(np.bincount(labels.flat)[1:])+1
+        largestCC=largestCC.astype(int)
+        properties = regionprops(largestCC, largestCC)
+        weighted_center_of_mass = properties[0].weighted_centroid
+        light_pos = (int(weighted_center_of_mass[1]),int(weighted_center_of_mass[0]))
+        light_pos=[light_pos[0],light_pos[1]]
+
+        return light_pos
+    
+
+def calculate_flare_loss(outputs_batch, targets_batch, batch_size):
+        flare_loss = []
+        rect_size = 150
+        epsilon = 1e-3
+        for img in range(batch_size):
+            light_pos = plot_light_pos(outputs_batch[img], 0.9)
+            if light_pos is not None:
+                x1 = int(max(light_pos[0] - rect_size / 2, 0))
+                x2 = int(min(light_pos[0] + rect_size / 2, 512))
+                y1 = int(max(light_pos[1] - rect_size / 2, 0))
+                y2 = int(min(light_pos[1] + rect_size / 2, 512))
+                output = outputs_batch[img].squeeze(0).permute(1, 2, 0)
+                target = targets_batch[img].squeeze(0).permute(1, 2, 0)
+                output = output[y1:y2, x1:x2 :]
+                target = target[y1:y2, x1:x2 :]
+                flare_loss.append(torch.mean(torch.sqrt((target - output)**2 + epsilon**2)))
+            else:
+                continue
+        sum = 0
+        for loss in flare_loss:
+            sum += loss
+            res = sum / len(flare_loss)
+        return res
+
+
+
+
 
 
 if __name__ == "__main__":
