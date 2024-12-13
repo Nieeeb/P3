@@ -117,7 +117,6 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
             '''
             # Compute loss
             loss = criterion(outputs, targets)
-            print(loss)
             wandb.log({"Training Loss": loss})
             
             # Backward pass and optimize
