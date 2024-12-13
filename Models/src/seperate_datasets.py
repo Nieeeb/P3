@@ -121,10 +121,10 @@ def check_sorted(inputs, targets, input_dirs, target_dirs):
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    dataset = SeperateDatasetsValidation(dataset_name='LowLight', transform=transform)
+    dataset = SeperateDatasets(dataset_name='LowLight', transform=transform)
     check_sorted(dataset.inputs, dataset.targets, dataset.input_dirs, dataset.target_dirs)
     #print(dataset.inputs)
-    train_loader = DataLoader(dataset, batch_size=1, shuffle=False)
+    train_loader = DataLoader(dataset, batch_size=1, shuffle=True)
     i = 0 
     for input, target in train_loader:
         i += 1
