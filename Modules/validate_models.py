@@ -12,7 +12,7 @@ sys.path.append(root_dir)
 
 # Import the U_Net model class
 from Models.model_zoo.U_Net import U_Net
-from Models.model_zoo.CAN import CANModel
+from Models.model_zoo.seqentialmodel import SequentialModel
 # Import the test dataset loader and any required preprocessing pipelines
 from Models.src.CLARITY_dataloader import LolTestDatasetLoader, LolValidationDatasetLoader
 from Modules.Preprocessing.preprocessing import crop_flip_pipeline, resize_pipeline
