@@ -178,7 +178,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                     f"Learning rate: {optimizer.param_groups[0]['lr']}")
                 running_loss = 0.0
 
-        save_model(model, optimizer, scheduler)
+        save_model(model=model, optimizer=optimizer, scheduler=scheduler, state=state)
 
         # Validation loop
         model.eval()  # Set model to evaluation mode
