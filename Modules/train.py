@@ -49,7 +49,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     dataset_name = state['dataset']
     batch_size = state['batch_size']
     train_dataset = prepare_dataset(dataset_name, transform)
-    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 
     if dataset_name == 'Mixed':
         val_dataset = LolValidationDatasetLoader(flare=True, transform=transform)

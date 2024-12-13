@@ -17,17 +17,18 @@ sys.path.append(root_dir)
 from Models.src.CLARITY_dataloader import LolTestDatasetLoader, LolDatasetLoader, LolValidationDatasetLoader
 from Modules.Preprocessing.preprocessing import crop_flip_pipeline, resize_pipeline
 from Modules.checkpointing import prepare_model, load_latest_checkpoint, prepare_preprocessor
+from Models.model_zoo.seqentialmodel import SequentialModel
 
 # Set device to GPU if available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 def generate_model_dicts():
-    datasets = ['Mixed']
+    datasets = ['Mixed', 'LowLight', 'LensFlare']
 
-    augmentations = ['crop_flip', 'resize', 'crop_only']
+    augmentations = ['resize']
 
-    model_names = ['UNet', 'CAN', 'CIDNet']
+    model_names = ['UNet']
 
     modeldicts = []
 
@@ -39,13 +40,45 @@ def generate_model_dicts():
                                             preprocessing_name=augemntation,
                                             preprocessing_size=512,
                                             dataset_name=dataset,
-                                            output_path=r'C:\Users\Victor Steinrud\Documents\DAKI\3. semester',
-                                            loss='L1',
+                                            output_path='Outputs/Models/',
+                                            loss='charbonnier',
                                             batch_size=1,
                                             device=device)
                 model_name = f"{model_name}_{augemntation}_{dataset}"
                 model_dict = {'model': model, 'modelname': model_name, 'state': state, 'transform': augemntation}
                 modeldicts.append(model_dict)
+    
+    ll, _, _, statell = load_latest_checkpoint(model_name='UNet',
+                                optimizer_name='Adam',
+                                preprocessing_name='resize',
+                                preprocessing_size=512,
+                                dataset_name='LowLight',
+                                output_path='Outputs/Models/',
+                                loss='charbonnier',
+                                batch_size=1,
+                                device=device
+                                )
+    lf, _, _, statelf = load_latest_checkpoint(model_name='UNet',
+                                optimizer_name='Adam',
+                                preprocessing_name='resize',
+                                preprocessing_size=512,
+                                dataset_name='LensFlare',
+                                output_path='Outputs/Models/',
+                                loss='charbonnier',
+                                batch_size=1,
+                                device=device
+                                )
+    sequential1 = SequentialModel(lf, ll)
+    model_name = f"Sequence_LF_LL_mixed"
+    model_dict = {'model': sequential1, 'modelname': model_name, 'state': (statelf, statell), 'transform': 'resize'}
+    modeldicts.append(model_dict)
+
+    sequential2 = SequentialModel(ll, lf)
+
+    model_name = f"Sequence_LL_LF_mixed"
+    model_dict = {'model': sequential2, 'modelname': model_name, 'state': (statell, statelf), 'transform': 'resize'}
+    modeldicts.append(model_dict)
+    
     return modeldicts
 
 def generate_image(modeldict, input, target):
