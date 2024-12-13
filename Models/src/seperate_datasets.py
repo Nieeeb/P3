@@ -31,8 +31,8 @@ class SeperateDatasets(Dataset):
 
     def collect_images(self):
         if self.dataset == 'LensFlare':
-            self.input_dirs = [r'Data/LOLdataset/our485/low', r'Data/LOLdataset/our485/high', r"Data/Flare7Kpp/test_data/synthetic/input"]
-            self.target_dirs = [r'Data/LOLdataset/our485/low', r'Data/LOLdataset/our485/high', r"Data/Flare7Kpp/test_data/synthetic/gt"]
+            self.input_dirs = [r'Data/LOLdataset/our485/high']
+            self.target_dirs = [r'Data/LOLdataset/our485/high']
             scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
             self.flare_image_loader = Flare_Image_Loader(transform_base=None,transform_flare=None)
             self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
@@ -81,21 +81,21 @@ class SeperateDatasets(Dataset):
         target_trans = transformed[1]
         return input_trans, target_trans
     
-
-
-
 class SeperateDatasetsValidation(SeperateDatasets):
     def __init__(self, dataset_name, transform):
         super().__init__(dataset_name, transform)
 
     def collect_images(self):
         if self.dataset == 'LensFlare':
-            self.input_dirs = [r"Data/How to Train Neural Networks for Flare Removal Dataset/real/input"]
-            self.target_dirs = [r"Data/How to Train Neural Networks for Flare Removal Dataset/real/ground_truth"]
+            self.input_dirs = [r'Data/LOLdataset/eval15/high']
+            self.target_dirs = [r'Data/LOLdataset/eval15/high']
+            scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
+            self.flare_image_loader = Flare_Image_Loader(transform_base=None,transform_flare=None)
+            self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
 
         if self.dataset == 'LowLight':
-            self.input_dirs = [r'Data/LOL-v2/Real_captured/Train/Low']
-            self.target_dirs = [r"Data/LOL-v2/Real_captured/Train/Normal"]
+            self.input_dirs = [r'Data/LOLdataset/eval15/low']
+            self.target_dirs = [r'Data/LOLdataset/eval15/high']
 
         self.inputs.extend(self.get_images(self.input_dirs, self.included_extenstions))
         self.targets.extend(self.get_images(self.target_dirs, self.included_extenstions))
@@ -121,7 +121,7 @@ def check_sorted(inputs, targets, input_dirs, target_dirs):
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    dataset = SeperateDatasets(dataset_name='LensFlare', transform=transform)
+    dataset = SeperateDatasetsValidation(dataset_name='LowLight', transform=transform)
     check_sorted(dataset.inputs, dataset.targets, dataset.input_dirs, dataset.target_dirs)
     #print(dataset.inputs)
     train_loader = DataLoader(dataset, batch_size=1, shuffle=False)

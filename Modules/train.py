@@ -63,12 +63,12 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     print(f"Using device: {device}")
     model, optimizer, scheduler, state = load_latest_checkpoint(model_name, optimizer_name, preprocessing_name, preprocessing_size, dataset_name, output_path, loss, batch_size, device)
     transform = prepare_preprocessor(preprocessing_name, preprocessing_size)
-    #wandb.login()
+    wandb.login()
 
-    #wandb.init(
-    #    project="CLARITY",
-    #    config=state,
-    #)
+    wandb.init(
+        project="CLARITY",
+        config=state,
+    )
 
     print("Loaded state:\n", state)
 
@@ -99,7 +99,6 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     best_val_loss = state['best_val_loss']
 
     epochs_without_improvement = state['epochs_without_improvement']
-    num_epochs = 1
 
     # Training loop
     for epoch in range(starting_epoch, num_epochs):
@@ -120,7 +119,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
             # Forward pass
             outputs = model(inputs)
             # print(outputs)
-            if loss_function == 'charbonnier':
+            if loss_function == 'charbonnier_weighted':
                 light_pos = plot_light_pos(inputs, threshold=0.9) 
             else:
                 light_pos = None
@@ -157,12 +156,12 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                 plt.show()
             '''
             # Compute loss
-            if loss_function == 'charbonnier':
+            if loss_function == 'charbonnier_weighted':
                 loss = criterion(outputs, targets, light_pos)
             else:
                 loss = criterion(outputs, targets)
 
-            #wandb.log({"Training Loss": loss})
+            wandb.log({"Training Loss": loss})
 
             # Backward pass and optimize
             loss.backward()
@@ -179,12 +178,14 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                     f"Learning rate: {optimizer.param_groups[0]['lr']}")
                 running_loss = 0.0
 
+        save_model(model, optimizer, scheduler)
+
         # Validation loop
         model.eval()  # Set model to evaluation mode
         val_loss = 0.0
         with torch.no_grad():  # Disable gradient computation
             for inputs, targets in val_loader:
-                if loss_function == 'charbonnier':
+                if loss_function == 'charbonnier_weighted':
                     light_pos = plot_light_pos(inputs, threshold=0.9)
                 else:
                     light_pos = None
@@ -195,7 +196,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                 # Forward pass
                 outputs = model(inputs) 
 
-                if loss_function == 'charbonnier':
+                if loss_function == 'charbonnier_weighted':
                     loss = criterion(outputs, targets, light_pos)
                 else:
                     loss = criterion(outputs, targets)
@@ -205,7 +206,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
         avg_val_loss = val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
         scheduler.step()
-        #wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss, 'lr': scheduler.get_last_lr()})
+        wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss, 'lr': scheduler.get_last_lr()})
 
 
         #EARLY DROPOUT
@@ -235,7 +236,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
-    parser.add_argument('--loss', type=str, choices=['charbonnier', 'total_variation', 'L1'], default='L1', help="Loss function")
+    parser.add_argument('--loss', type=str, choices=['charbonnier', 'charbonnier_weighted', 'L1'], default='charbonnier', help="Loss function")
     parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet", "UnetNoSkip"], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")

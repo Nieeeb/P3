@@ -17,9 +17,9 @@ import torch
 import torch.optim as optim
 #from torchmetrics.image import TotalVariation
 
-class CharbonnierLoss(torch.nn.Module):
+class CharbonnierLossWeighted(torch.nn.Module):
     def __init__(self, epsilon=1e-3):
-        super(CharbonnierLoss, self).__init__()
+        super(CharbonnierLossWeighted, self).__init__()
         self.epsilon = epsilon
     
     def forward(self, output, target, light_pos):
@@ -40,18 +40,26 @@ class CharbonnierLoss(torch.nn.Module):
         else:
             return torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
 
+class CharbonnierLoss(torch.nn.Module):
+    def __init__(self, epsilon=1e-3):
+        super(CharbonnierLoss, self).__init__()
+        self.epsilon = epsilon
+    
+    def forward(self, output, target, light_pos):
+        if light_pos is not None:
+            loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+            return loss
 
 def prepare_loss(loss):
     # Define the loss function
+    if loss == 'charbonnier_weighted':
+        criterion = CharbonnierLossWeighted()
     if loss == 'charbonnier':
         criterion = CharbonnierLoss()
-    elif loss == 'total_variation':
-        #criterion = TotalVariation()
-        pass
     elif loss == 'L1':
         criterion = nn.L1Loss()
     else:
-        print("Wrong loss type given. Accepted inputs: charbonnier, total_variation, L1")
+        print("Wrong loss type given. Accepted inputs: charbonnier, charbonnier_weighted, L1")
         criterion = None
     return criterion
 
@@ -61,7 +69,7 @@ def prepare_dataset(dataset_name, transform):
     elif dataset_name == 'LowLight':
         dataset = SeperateDatasets(dataset_name='LowLight', transform=transform)
     elif dataset_name == 'Mixed':
-        dataset = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
+        dataset = LolDatasetLoader(flare=True, transform=transform)
     else:
         print("Wrong dataset type given. Accepted inputs: LowLight, LensFlare, Mixed")
         dataset = None

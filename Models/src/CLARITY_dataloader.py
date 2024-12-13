@@ -37,9 +37,7 @@ def get_images(dir, included_extenstions):
         
 
 class LolDatasetLoader(Dataset):
-    def __init__(self, flare: bool, LowLightLensFlare: bool, LensFlareLowLight: bool, transform = None):
-        self.LowLightLensFlare = LowLightLensFlare
-        self.LensFlareLowLight = LensFlareLowLight
+    def __init__(self, flare: bool, transform = None):
         self.flare = flare
         self.inputs = []
         self.targets = []
@@ -48,57 +46,6 @@ class LolDatasetLoader(Dataset):
 
     def collect_images(self):
         included_extenstions = ['png']
-
-        if self.LensFlareLowLight:
-            lens_flare_imgs_input = []
-            self.inputs_dirs = [r"Data/Flare7Kpp/test_data/synthetic/input", r"Data/Flare7Kpp/test_data/real/input"]
-            lens_flare_imgs_input.extend(get_images(self.inputs_dirs, included_extenstions))
-            lens_flare_imgs_input.sort()
-            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Real_captured/Train/Low"]
-            self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
-            self.inputs.sort()
-            lens_flare_imgs_input.extend(self.inputs)
-
-            self.inputs = lens_flare_imgs_input
-
-
-            lens_flare_imgs_target = []
-
-            self.targets_dirs = [r"Data/Flare7Kpp/test_data/synthetic/gt", r"Data/Flare7Kpp/test_data/real/gt"]
-            lens_flare_imgs_target.extend(get_images(self.targets_dirs, included_extenstions))
-            lens_flare_imgs_target.sort()
-            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Real_captured/Train/Normal"]
-            self.targets.extend(get_images(self.targets_dirs, included_extenstions))
-            self.targets.sort()
-            lens_flare_imgs_target.extend(self.targets)
-
-            self.targets = lens_flare_imgs_target
-
-
-
-        if self.LowLightLensFlare:
-            lens_flare_imgs_input = []
-
-            self.inputs_dirs = [r"Data/Flare7Kpp/test_data/synthetic/input", r"Data/Flare7Kpp/test_data/real/input"]
-            lens_flare_imgs_input.extend(get_images(self.inputs_dirs, included_extenstions))
-            lens_flare_imgs_input.sort()
-            self.inputs_dirs = [r'Data/LOLdataset/our485/low', r"Data/LOL-v2/Real_captured/Train/Low"]
-            self.inputs.extend(get_images(self.inputs_dirs, included_extenstions))
-            self.inputs.sort()
-            self.inputs.extend(lens_flare_imgs_input)
-
-
-            lens_flare_imgs_target = []
-
-
-            self.targets_dirs = [r"Data/Flare7Kpp/test_data/synthetic/gt", r"Data/Flare7Kpp/test_data/real/gt"]
-            lens_flare_imgs_target.extend(get_images(self.targets_dirs, included_extenstions))
-            lens_flare_imgs_target.sort()
-            self.targets_dirs = [r'Data/LOLdataset/our485/high', r"Data/LOL-v2/Real_captured/Train/Normal"]
-            self.targets.extend(get_images(self.targets_dirs, included_extenstions))
-            self.targets.sort()
-            self.targets.extend(lens_flare_imgs_target)
-
 
         if self.flare:
             self.inputs_dirs = [r'Data/LOLdataset/our485/low']
@@ -173,7 +120,7 @@ class LolValidationDatasetLoader(LolDatasetLoader):
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    l = LolDatasetLoader(flare=True, LowLightLensFlare=False, LensFlareLowLight=False, transform=transform)
+    l = LolDatasetLoader(flare=True, transform=transform)
     # l = LolTestDatasetLoader(flare=True, transform=transform)
     train_loader = DataLoader(l, batch_size=1, shuffle=False)
     i = 0 
