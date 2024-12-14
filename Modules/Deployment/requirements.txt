@@ -1,0 +1,14 @@
+einops
+fastapi
+matplotlib
+numpy
+opencv_contrib_python
+Pillow
+Requests
+scipy
+scikit-image
+tensorflow
+torch
+torchvision
+tqdm
+uvicorn

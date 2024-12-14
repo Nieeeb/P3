@@ -29,7 +29,7 @@ class CharbonnierLossWeighted(torch.nn.Module):
     
     def forward(self, outputs, targets):
         non_flare_loss = torch.mean(torch.sqrt((targets - outputs)**2 + self.epsilon**2))
-        flare_loss = calculate_flare_loss(outputs, targets, batch_size=8) 
+        flare_loss = calculate_flare_loss(outputs, targets) 
         flare_loss = flare_loss * self.flare_gain
         return non_flare_loss + flare_loss
  
@@ -239,7 +239,8 @@ def plot_light_pos(input_img,threshold):
         return light_pos
     
 
-def calculate_flare_loss(outputs_batch, targets_batch, batch_size):
+def calculate_flare_loss(outputs_batch, targets_batch):
+        batch_size = outputs_batch.shape[0]
         flare_loss = []
         rect_size = 150
         epsilon = 1e-3
@@ -258,6 +259,7 @@ def calculate_flare_loss(outputs_batch, targets_batch, batch_size):
             else:
                 continue
         sum = 0
+        res = 0
         for loss in flare_loss:
             sum += loss
             res = sum / len(flare_loss)

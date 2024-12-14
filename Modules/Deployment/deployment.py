@@ -19,10 +19,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.testclient import TestClient
 from Modules.Deployment.helpers import process_image, get_model
-from typing import Annotated
-from pathlib import Path
 import matplotlib.pyplot as plt
-import numpy as np
 import requests
 from PIL import Image
 

@@ -9,7 +9,6 @@ from PIL import Image
 import torch
 import numpy as np
 from Modules.checkpointing import prepare_model, prepare_preprocessor
-import torchvision.transforms.functional as F
 
 def generate_image(input, output):
     input_image = input.cpu().squeeze(0).permute(1, 2, 0).detach().numpy()
