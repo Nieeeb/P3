@@ -63,7 +63,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     best_val_loss = state['best_val_loss']
 
     epochs_without_improvement = state['epochs_without_improvement']
-    num_epochs = 1
+
     # Training loop
     for epoch in range(starting_epoch, num_epochs):
         print(f"Starting training for epoch {epoch}")
@@ -134,7 +134,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
                     f"Learning rate: {optimizer.param_groups[0]['lr']}")
                 running_loss = 0.0
 
-        # save_model(model=model, optimizer=optimizer, scheduler=scheduler, state=state)
+        save_model(model=model, optimizer=optimizer, scheduler=scheduler, state=state)
 
         # Validation loop
         model.eval()  # Set model to evaluation mode
@@ -151,7 +151,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
                 print(loss)
                 val_loss += loss.item()
-                break
+                
         avg_val_loss = val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
         scheduler.step()
