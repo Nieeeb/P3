@@ -6,12 +6,25 @@ import torchvision.transforms.functional as F
 from Models.src.APPLY_FLARE_TO_IMG import Flare_Image_Loader
 from PIL import Image
 import torch
+from torch import optim
 from torch.utils.data import DataLoader, Dataset
 import matplotlib.pyplot as plt
 import torchvision.transforms.v2 as T
 from Modules.Preprocessing.preprocessing import resize_pipeline
 import re
+from Models.model_zoo.U_Net import U_Net
+from Models.src.CLARITY_dataloader import LolValidationDatasetLoader
+import wandb
 
+
+class CharbonnierLoss(torch.nn.Module):
+    def __init__(self, epsilon=1e-3):
+        super(CharbonnierLoss, self).__init__()
+        self.epsilon = epsilon
+    
+    def forward(self, output, target):
+        loss = torch.mean(torch.sqrt((target - output)**2 + self.epsilon**2))
+        return loss
 
 class SeperateDatasets(Dataset):
     def __init__(self, dataset_name, transform):
@@ -27,7 +40,7 @@ class SeperateDatasets(Dataset):
         for d in dir:
             input_images = [os.path.join(d, file) for file in os.listdir(d) if any(file.endswith(ext) for ext in included_extenstions)]
             if self.dataset == 'LensFlare':
-                files.extend(input_images[:((len(input_images) // 2)+1)])
+                files.extend(input_images[:((len(input_images) // 2) + 1)])
             if self.dataset == 'LowLight':
                 files.extend(input_images[:(len(input_images) // 2)])
         return files
@@ -84,68 +97,88 @@ class SeperateDatasets(Dataset):
         target_trans = transformed[1]
         return input_trans, target_trans
     
-class SeperateDatasetsValidation(SeperateDatasets):
-    def __init__(self, dataset_name, transform):
-        super().__init__(dataset_name, transform)
 
-    def collect_images(self):
-        if self.dataset == 'LensFlare':
-            self.input_dirs = [r'Data/LOLdataset/eval15/high']
-            self.target_dirs = [r'Data/LOLdataset/eval15/high']
-            scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
-            self.flare_image_loader = Flare_Image_Loader(transform_base=None,transform_flare=None)
-            self.flare_image_loader.load_scattering_flare('Flare7K', scattering_flare_dir)
+transform = resize_pipeline(512)
+lensflare_dataset = SeperateDatasets(dataset_name='LensFlare', transform=transform)
+lensflaredl = DataLoader(lensflare_dataset, batch_size=1, shuffle=True)
+lowlight_dataset = SeperateDatasets(dataset_name='LowLight', transform=transform)
+lowlightdl = DataLoader(lowlight_dataset, batch_size=1, shuffle=True)
+validation_dataset = LolValidationDatasetLoader(flare=True, transform=transform)
+val_loader = DataLoader(validation_dataset, batch_size=1)
 
-        if self.dataset == 'LowLight':
-            self.input_dirs = [r'Data/LOLdataset/eval15/low']
-            self.target_dirs = [r'Data/LOLdataset/eval15/high']
+device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+model = U_Net(img_ch=3, output_ch=3)
+
+total_params = sum(p.numel() for p in model.flop())
+print(f"Number of parameters: {total_params}")
+'''
+num_epochs = 50
+lowlight_loss_fn = CharbonnierLoss()
+criterion = CharbonnierLoss()
+optimizer = optim.Adam(model.parameters(), lr=2e-4)
+lensflare_loss_fn = CharbonnierLoss()
 
 
-        self.inputs.extend(self.get_images(self.input_dirs, self.included_extenstions))
-        self.targets.extend(self.get_images(self.target_dirs, self.included_extenstions))
 
-def check_sorted(inputs, targets, input_dirs, target_dirs):
-    file_inputs = []
-    file_targets = []
-    for input_dir in input_dirs:
-        for input in inputs:
-            if input_dir in input:
-                file_input = re.sub(input_dir, "", input)
-                file_inputs.append(file_input)
 
-    for target_dir in target_dirs:
-        for target in targets:
-            if target_dir in target:
-                file_target = re.sub(target_dir, "", target)
-                file_targets.append(file_target)
+# wandb.init(
+#         project="CLARITY",
+#         config="Baseline Joint processing",
+#     )
 
-    for index, _ in enumerate(file_inputs):
-        if file_inputs[index] != file_targets[index]:
-            print(f"Match error: {file_inputs[index]} - {file_targets[index]}")
 
-if __name__ == "__main__":
-    transform = resize_pipeline(512)
-    dataset = SeperateDatasets(dataset_name='LensFlare', transform=transform)
-    check_sorted(dataset.inputs, dataset.targets, dataset.input_dirs, dataset.target_dirs)
-    #print(dataset.inputs)
-    train_loader = DataLoader(dataset, batch_size=1, shuffle=True)
-    i = 0 
-    for input, target in train_loader:
-        i += 1
-        # input = input.squeeze(0)
-        # target = target.squeeze(0)
-        # input_image = input.permute(1, 2, 0).detach().cpu().numpy()
-        # target_image = target.permute(1, 2, 0).detach().cpu().numpy()
+model.to(device)
 
-        # fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-        # axs[0].imshow(input_image)
-        # axs[0].set_title('Input Image')
-        # axs[0].axis('off')
 
-        # axs[1].imshow(target_image)
-        # axs[1].set_title('Output Image')
-        # axs[1].axis('off')
-        # plt.show()
-    print(i)
+for epoch in range(num_epochs):
+    zipped_dls = zip(lowlightdl, lensflaredl)
+    for j, ((lowlight_batch_X, lowlight_batch_y), (lensflare_batch_X, lensflare_batch_y)) in enumerate(zipped_dls):
+        print('Training...')
+        lowlight_batch_X = lowlight_batch_X.to(device)
+        lowlight_batch_y = lowlight_batch_y.to(device)
 
+        lensflare_batch_X = lensflare_batch_X.to(device)
+        lensflare_batch_y = lensflare_batch_y.to(device)
+
+
+        lowlight_preds = model(lowlight_batch_X)
+        lowlight_loss = lowlight_loss_fn(lowlight_preds, lowlight_batch_y)
         
+        lensflare_preds = model(lensflare_batch_X)
+        lensflare_loss = lensflare_loss_fn(lensflare_preds, lensflare_batch_y)
+        
+        loss = lensflare_loss + lowlight_loss
+        print(loss.item())
+
+        # wandb.log({"Training Loss": loss})
+
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+    
+
+    # Validation loop
+    model.eval()  # Set model to evaluation mode
+    val_loss = 0.0
+    with torch.no_grad():  # Disable gradient computation
+        for inputs, targets in val_loader:
+            inputs = inputs.to(device)
+            targets = targets.to(device)
+
+            # Forward pass
+            outputs = model(inputs) 
+
+            loss = criterion(outputs, targets)
+
+            print(loss)
+            val_loss += loss.item()
+            
+    avg_val_loss = val_loss / len(val_loader)
+    print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
+    wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss})
+
+# torch.save(model.state_dict(), VI SKAL LIGE SÆTTE EN KORREKT PATH)
+'''
