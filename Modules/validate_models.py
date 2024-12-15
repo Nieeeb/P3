@@ -20,7 +20,9 @@ from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 from Modules.checkpointing import prepare_model, load_latest_checkpoint, prepare_preprocessor
 from Modules.generate_images import generate_model_dicts
+from Models.src.seperate_datasets import check_sorted
 import pickle
+import lpips
 #import lpips
 
 # Set device to GPU if available
@@ -28,6 +30,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 def validate_model(modeldict, test_loader):
+    lpips_fn = lpips.LPIPS(net='alex').to(device)
     model = modeldict['model']
     model.to(device)
     model.eval()
@@ -59,11 +62,13 @@ def validate_model(modeldict, test_loader):
             outputs = outputs.numpy()
             targets = targets.numpy()
 
-            outputs = outputs + targets
             #print(targets)
             # Compute SSIM
             #print(target_np.shape)
             range = pred_np.max() - pred_np.min()
+
+
+
             ssim_val = ssim(target_np, pred_np, multi_channel=True, channel_axis=0, data_range=1.0)
             #print(ssim_val)
             ssim_values.append(ssim_val)
@@ -72,20 +77,21 @@ def validate_model(modeldict, test_loader):
             psnr_val = compare_psnr(targets, outputs, data_range=1.0)
             psnr_values.append(psnr_val)
 
+            outputs = torch.from_numpy(outputs)
+            targets = torch.from_numpy(targets)
             # Compute LPIPS (LPIPS returns a tensor)
-            #lpips_val = lpips_fn(outputs, targets)
-            #lpips_values.append(lpips_val.item())
+            lpips_val = lpips_fn(outputs, targets)
+            lpips_values.append(lpips_val.item())
 
     # After the loop, compute the average of each metric
     mean_ssim = np.mean(ssim_values)
     mean_psnr = np.mean(psnr_values)
-    #mean_lpips = np.mean(lpips_values)
+    mean_lpips = np.mean(lpips_values)
     print('---------------------------------------------------------------------------')
     print(f"Results for: {modeldict['modelname']}")
     print(f"Average SSIM: {mean_ssim:.4f}")
     print(f"Average PSNR: {mean_psnr:.4f} dB")
-    print(f"State:\n{modeldict['state']}")
-    #print(f"Average LPIPS: {mean_lpips:.4f}")
+    print(f"Average LPIPS: {mean_lpips:.4f}")
     print('---------------------------------------------------------------------------')
 
 modeldicts = generate_model_dicts()
@@ -93,7 +99,7 @@ modeldicts = generate_model_dicts()
 for modeldict in modeldicts:
     tranform = prepare_preprocessor(modeldict['transform'], 512)
     dataset = LolValidationDatasetLoader(flare=True, transform=tranform)
+    # check_sorted(dataset.inputs, dataset.targets, dataset.inputs_dirs, dataset.targets_dirs)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
     validate_model(modeldict, dataloader)
 
-#lpips_fn = lpips.LPIPS(net='alex').to(device)

@@ -108,8 +108,8 @@ class LolValidationDatasetLoader(LolDatasetLoader):
         self.targets = []
         self.LensFlareLowLight = False
         self.LowLightLensFlare = False
-        self.inputs_dirs = [r'Data/LOLdataset/eval15/low']
-        self.targets_dirs = [r'Data/LOLdataset/eval15/high']
+        self.inputs_dirs = [r"Data/LOL-v2/Real_captured/Test/Normal", r'Data/LOLdataset/eval15/high']
+        self.targets_dirs = [r"Data/LOL-v2/Real_captured/Test/Normal", r'Data/LOLdataset/eval15/high']
         self.transform = transform
         scattering_flare_dir=r"Data/Flare7Kpp/Flare7K/Scattering_Flare/Compound_Flare"
         self.flare_image_loader=Flare_Image_Loader(transform_base=None,transform_flare=None)
@@ -120,20 +120,24 @@ class LolValidationDatasetLoader(LolDatasetLoader):
 
 if __name__ == "__main__":
     transform = resize_pipeline(512)
-    l = LolDatasetLoader(flare=True, transform=transform)
+    l = LolValidationDatasetLoader(flare=True, transform=transform)
     # l = LolTestDatasetLoader(flare=True, transform=transform)
-    train_loader = DataLoader(l, batch_size=1, shuffle=True)
+    train_loader = DataLoader(l, batch_size=1, shuffle=False)
     i = 0 
-    for input, target in train_loader:
-        i += 1
-        input = input.squeeze(0)
-        target = target.squeeze(0)
-        input_image = input.permute(1, 2, 0).detach().cpu().numpy()
-        target_image = target.permute(1, 2, 0).detach().cpu().numpy()
 
-        # if i >= 2070:
-        plt.imshow(input_image)
-        plt.show()
-        plt.imshow(target_image)
-        plt.show()
-        
+    num_epochs = 2
+    for epoch in range(num_epochs):
+        for input, target in train_loader:
+            i += 1
+            input = input.squeeze(0)
+            target = target.squeeze(0)
+            input_image = input.permute(1, 2, 0).detach().cpu().numpy()
+            target_image = target.permute(1, 2, 0).detach().cpu().numpy()
+
+            # if i >= 2070:
+            plt.imshow(input_image)
+            plt.show()
+            plt.imshow(target_image)
+            plt.show()
+            break
+            

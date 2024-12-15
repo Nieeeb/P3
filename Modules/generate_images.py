@@ -32,53 +32,80 @@ def generate_model_dicts():
 
     modeldicts = []
 
-    for dataset in datasets:
-        for augemntation in augmentations:
-            for model_name in model_names:
-                model, _, _, state = load_latest_checkpoint(model_name=model_name,
-                                            optimizer_name='Adam',
-                                            preprocessing_name=augemntation,
-                                            preprocessing_size=512,
-                                            dataset_name=dataset,
-                                            output_path='Outputs/Models/',
-                                            loss='charbonnier',
-                                            batch_size=1,
-                                            device=device)
-                model_name = f"{model_name}_{augemntation}_{dataset}"
-                model_dict = {'model': model, 'modelname': model_name, 'state': state, 'transform': augemntation}
-                modeldicts.append(model_dict)
-    
-    ll, _, _, statell = load_latest_checkpoint(model_name='UNet',
-                                optimizer_name='Adam',
-                                preprocessing_name='resize',
-                                preprocessing_size=512,
-                                dataset_name='LowLight',
-                                output_path='Outputs/Models/',
-                                loss='charbonnier',
-                                batch_size=1,
-                                device=device
-                                )
-    lf, _, _, statelf = load_latest_checkpoint(model_name='UNet',
-                                optimizer_name='Adam',
-                                preprocessing_name='resize',
-                                preprocessing_size=512,
-                                dataset_name='LensFlare',
-                                output_path='Outputs/Models/',
-                                loss='charbonnier',
-                                batch_size=1,
-                                device=device
-                                )
-    sequential1 = SequentialModel(lf, ll)
-    model_name = f"Sequence_LF_LL_mixed"
-    model_dict = {'model': sequential1, 'modelname': model_name, 'state': (statelf, statell), 'transform': 'resize'}
+    loss = ['charbonnier', 'charbonnier_weighted']
+
+
+    # model_Mixed_Charbonnier = prepare_model('UNet')
+    # model_Mixed_Charbonnier.load_state_dict(torch.load(r"Outputs\Models\UNet_resize_Mixed_charbonnier\model_checkpoints\UNet_model_epoch_49.pth", map_location='cpu', weights_only=False))
+    # model_name = f"Sequence_UnWeightedLoss_mixed"
+    # model_dict = {'model': model_Mixed_Charbonnier, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)  
+
+
+    # model_Mixed_Charbonnier_Weighted = prepare_model('UNet')
+    # model_Mixed_Charbonnier_Weighted.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\Models\UNet_resize_Mixed_charbonnier_weighted\model_checkpoints\UNet_model_epoch_49Weighted.pth", map_location='cpu', weights_only=False))
+    # model_name = f"Sequence_WeightedLoss_mixed"
+    # model_dict = {'model': model_Mixed_Charbonnier_Weighted, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
+
+
+
+    model_Mixed_Charbonnier_Weighted10 = prepare_model('UNet')
+    model_Mixed_Charbonnier_Weighted10.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\Models\UNet_resize_Mixed_charbonnier_weighted\model_checkpoints\UNet_model_epoch_49Weighted10.pth", map_location='cpu', weights_only=False))
+    model_name = f"Sequence_WeightedLoss_mixed10"
+    model_dict = {'model': model_Mixed_Charbonnier_Weighted10, 'modelname': model_name, 'transform': 'resize'}
     modeldicts.append(model_dict)
 
-    sequential2 = SequentialModel(ll, lf)
+    # model_Mixed_Charbonnier_Weighted15 = prepare_model('UNet')
+    # model_Mixed_Charbonnier_Weighted15.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\Models\UNet_resize_Mixed_charbonnier_weighted\model_checkpoints\UNet_model_epoch_49Weighted15.pth", map_location='cpu', weights_only=False))
+    # model_name = f"Sequence_WeightedLoss_mixed15"
+    # model_dict = {'model': model_Mixed_Charbonnier_Weighted15, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
 
-    model_name = f"Sequence_LL_LF_mixed"
-    model_dict = {'model': sequential2, 'modelname': model_name, 'state': (statell, statelf), 'transform': 'resize'}
-    modeldicts.append(model_dict)
+
+
+    # model_Low = prepare_model('UNet')
+    # model_Low.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\Models\UNet_resize_LowLight_charbonnier\model_checkpoints\UNet_model_epoch_49.pth", map_location='cpu', weights_only=False))
+    # model_name = f"Sequence_LL_mixed"
+    # model_dict = {'model': model_Low, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
+
+
+
+    # model_Lens = prepare_model('UNet')
+    # model_Lens.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\Models\UNet_resize_LensFlare_charbonnier\model_checkpoints\UNet_model_epoch_49LFNotDark.pth", map_location='cpu', weights_only=False))
+    # model_name = f"Sequence_LF"
+    # model_dict = {'model': model_Lens, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
+
+    # model_Lensdark = prepare_model('UNet')
+    # model_Lensdark.load_state_dict(torch.load(r"C:\Users\Victor Steinrud\Documents\DAKI\3. semester\P3\Outputs\Models\UNet_resize_LensFlare_charbonnier\model_checkpoints\UNet_model_epoch_49LFDARK.pth", map_location='cpu', weights_only=False))
+    # model_name = f"Sequence_LFDARK_mixed"
+    # model_dict = {'model': model_Lensdark, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
+
+
+    # sequential1 = SequentialModel(model_Lens, model_Low)
+    # model_name = f"Sequence_LF_LL_mixed"
+    # model_dict = {'model': sequential1, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
+ 
+    # sequential2 = SequentialModel(model_Low, model_Lens)
+    # model_name = f"Sequence_LL_LF_mixed"
+    # model_dict = {'model': sequential2, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
     
+
+
+    # sequential3 = SequentialModel(model_Lensdark, model_Low)
+    # model_name = f"Sequence_LFDARK_LL_mixed"
+    # model_dict = {'model': sequential3, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
+ 
+    # sequential4 = SequentialModel(model_Low, model_Lensdark)
+    # model_name = f"Sequence_LL_LFDARK_mixed"
+    # model_dict = {'model': sequential4, 'modelname': model_name, 'transform': 'resize'}
+    # modeldicts.append(model_dict)
     return modeldicts
 
 def generate_image(modeldict, input, target):
@@ -128,11 +155,12 @@ def generate_image(modeldict, input, target):
 
 modeldicts = generate_model_dicts()
 
+tranform = prepare_preprocessor('resize', 512)
+dataset = LolValidationDatasetLoader(flare=True, transform=tranform)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+input, target = next(iter(dataloader))
+
 for modeldict in modeldicts:
-    tranform = prepare_preprocessor(modeldict['transform'], 512)
-    dataset = LolValidationDatasetLoader(flare=True, transform=tranform)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
-    input, target = next(iter(dataloader))
     generate_image(modeldict, input, target)
 
 
