@@ -87,6 +87,17 @@ def crop_flip_pipeline(size):
     ])
     return transform
 
+def resize_flip_pipeline(size):
+    transform = T.Compose([
+        T.ToImage(),
+        # Croping
+        T.Resize((size, size)), # Crop
+        # Flipping
+        T.RandomVerticalFlip(0.5), # 50% of the time the image is flipped
+        T.RandomHorizontalFlip(0.5)
+    ])
+    return transform
+
 # https://ieeexplore.ieee.org/document/10177254
 # "Glow in the Dark: Low-Light Image Enhancement With External Memory"
 def random_crop_and_flip_pipeline(size):
