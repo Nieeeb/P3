@@ -1,11 +1,11 @@
 einops==0.8.0
 lpips==0.1.4
-matplotlib==3.10.0
-numpy==2.2.0
+matplotlib
+numpy
 opencv_contrib_python==4.10.0.84
 Pillow==11.0.0
 scipy==1.14.1
-skimage==0.0
+scikit-image
 tensorflow==2.17.0
 torch==2.5.1
 torchvision==0.20.1
