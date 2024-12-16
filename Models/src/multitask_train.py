@@ -110,8 +110,8 @@ device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = U_Net(img_ch=3, output_ch=3)
 
-total_params = sum(p.numel() for p in model.flop())
-print(f"Number of parameters: {total_params}")
+#total_params = sum(p.numel() for p in model.flop())
+#print(f"Number of parameters: {total_params}")
 
 num_epochs = 50
 lowlight_loss_fn = CharbonnierLoss()
@@ -123,8 +123,7 @@ lensflare_loss_fn = CharbonnierLoss()
 
 
 wandb.init(
-         project="CLARITY",
-         config="Baseline Joint processing",
+         project="CLARITY"
      )
 
 
