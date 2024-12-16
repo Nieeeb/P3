@@ -112,7 +112,7 @@ model = U_Net(img_ch=3, output_ch=3)
 
 total_params = sum(p.numel() for p in model.flop())
 print(f"Number of parameters: {total_params}")
-'''
+
 num_epochs = 50
 lowlight_loss_fn = CharbonnierLoss()
 criterion = CharbonnierLoss()
@@ -122,10 +122,10 @@ lensflare_loss_fn = CharbonnierLoss()
 
 
 
-# wandb.init(
-#         project="CLARITY",
-#         config="Baseline Joint processing",
-#     )
+wandb.init(
+         project="CLARITY",
+         config="Baseline Joint processing",
+     )
 
 
 model.to(device)
@@ -149,9 +149,9 @@ for epoch in range(num_epochs):
         lensflare_loss = lensflare_loss_fn(lensflare_preds, lensflare_batch_y)
         
         loss = lensflare_loss + lowlight_loss
-        print(loss.item())
+        #print(loss.item())
 
-        # wandb.log({"Training Loss": loss})
+        wandb.log({"Training Loss": loss})
 
 
         optimizer.zero_grad()
@@ -173,12 +173,12 @@ for epoch in range(num_epochs):
 
             loss = criterion(outputs, targets)
 
-            print(loss)
+            #print(loss)
             val_loss += loss.item()
             
     avg_val_loss = val_loss / len(val_loader)
     print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
     wandb.log({'epoch': epoch, 'avg_val_loss': avg_val_loss})
+    torch.save(model.state_dict(), f'OutputsMulti/epoch_{epoch}.pth')
 
-# torch.save(model.state_dict(), VI SKAL LIGE SÆTTE EN KORREKT PATH)
-'''
+torch.save(model.state_dict(), 'OutputsMulti/final.pth')

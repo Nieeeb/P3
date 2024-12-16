@@ -7,10 +7,11 @@ from Models.model_zoo.CAN import CANModel
 from Models.model_zoo.mirnet_v2_arch import MIRNet_v2
 from Models.model_zoo.U_Net import U_Net
 from Models.model_zoo.U_Net_no_skip import U_Net_no_skip
+from Models.model_zoo.UNet_Simple import U_NetSimple
 from Models.model_zoo.CIDNet import CIDNet
 from Models.src.CLARITY_dataloader import LolDatasetLoader, LolValidationDatasetLoader, LolTestDatasetLoader
 from Models.src.seperate_datasets import SeperateDatasets, SeperateDatasetsValidation
-from Modules.Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline
+from Modules.Preprocessing.preprocessing import crop_flip_pipeline, cropping_only_pipeline, resize_pipeline, random_crop_and_flip_pipeline, resize_flip_pipeline
 from torch import nn
 import torch
 import torch.optim as optim
@@ -115,6 +116,8 @@ def prepare_model(model_name):
         model = U_Net(img_ch=3, output_ch=3)
     elif model_name == 'UNetNoSkip':
         model = U_Net_no_skip(img_ch=3, output_ch=3)
+    elif model_name == 'UNetSimple':
+        model = U_NetSimple(img_ch=3, output_ch=3)
     elif model_name == 'CAN':
         model = CANModel(input_channels=3, out_channels=3, conv_channels=3, num_blocks=8)
     elif model_name == "CIDNet":
@@ -142,8 +145,10 @@ def prepare_preprocessor(preprocessing_name, preprocessing_size):
         transform = crop_flip_pipeline(size=int(preprocessing_size))
     elif preprocessing_name == 'random_crop_flip':
         transform = random_crop_and_flip_pipeline(size=int(preprocessing_size))
+    elif preprocessing_name == 'resize_flip':
+        transform = resize_flip_pipeline(size=int(preprocessing_size))
     else:
-        print("Wrong preprocessing type given. Accepted inputs: crop_only, resize, crop_flip, random_crop_flip")
+        print("Wrong preprocessing type given. Accepted inputs: crop_only, resize, crop_flip, random_crop_flip, resize_flip")
         transform = None
     return transform
 

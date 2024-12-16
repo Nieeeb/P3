@@ -185,10 +185,10 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
     parser.add_argument('--loss', type=str, choices=['charbonnier', 'charbonnier_weighted', 'L1'], default='charbonnier_weighted', help="Loss function")
-    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet", "UnetNoSkip"], default='UNet', help="What model to train")
+    parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet", "UnetNoSkip", 'UNetSimple'], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")
-    parser.add_argument('--preprocessing_name', type=str, choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip'], default='resize', help="How to augment images")
+    parser.add_argument('--preprocessing_name', type=str, choices=['crop_only', 'resize', 'crop_flip', 'random_crop_flip', 'resize_flip'], default='resize', help="How to augment images")
     parser.add_argument('--preprocessing_size', type=int, default=512, help="Desired input size")
     parser.add_argument('--optimizer', type=str, choices=['Adam'], default='Adam', help="What optimizer to use")
     parser.add_argument('--scheduler', type=str, choices=['CosineAnnealing'], default='CosineAnnealing', help="Learning rate scheduler")
