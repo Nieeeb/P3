@@ -126,9 +126,8 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
                 loss_LPIPS = loss_fn_LPIPS(outputs, targets)
                 loss_LPIPS = torch.mean(loss_LPIPS)
-                loss_distortion = loss_fn_distortion(outputs, targets)
 
-                loss = loss_LPIPS + loss_distortion
+                loss = loss_LPIPS 
                 val_loss += loss.item()
                 
         avg_val_loss = val_loss / len(val_loader)
