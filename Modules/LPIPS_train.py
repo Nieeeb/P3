@@ -39,6 +39,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
     model.to(device)
 
     loss_fn_LPIPS = lpips.LPIPS(net='alex')
+    loss_fn_LPIPS = loss_fn_LPIPS.to(device)
     loss_fn_distortion = prepare_loss(state['loss'])
 
     # Number of epochs to train
@@ -162,7 +163,7 @@ def train(model_name, optimizer_name, preprocessing_name, preprocessing_size, da
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training Configuration")
-    parser.add_argument('--loss', type=str, choices=['charbonnier', 'charbonnier_weighted', 'L1'], default='charbonnier_weighted', help="Loss function")
+    parser.add_argument('--loss', type=str, choices=['charbonnier', 'charbonnier_weighted', 'L1', 'LPIPS'], default='charbonnier_weighted', help="Loss function")
     parser.add_argument('--model', type=str, choices=['MIRNet', 'UNet', 'CAN', "CIDNet", "UnetNoSkip"], default='UNet', help="What model to train")
     parser.add_argument('--lr', type=float, default=2e-4, help="Learning rate for the optimizer")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch size")
